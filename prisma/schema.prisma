@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ModeList {
+  Online
+  Offline
+  Mixed
+}
+
+enum EventTypeList {
+  Completed
+  OnGoing
+  Upcomming
+}
+
+model Events {
+  eventID        String        @id @default(uuid())
+  title          String        @unique
+  eventSlug      String        @unique
+  description    String
+  location       String?
+  bannerLink     Json
+  publish        Boolean       @default(false)
+  mode           ModeList
+  eventType      EventTypeList
+  formLink       String
+  contactDetails String
+  paymentDetails String
+  startDate      DateTime
+
+  @@index([title, eventSlug])
+}
+
+model Admin {
+  adminID            String  @id @default(uuid())
+  userNameEncrypted  String
+  userNameIv         String
+  userNameAuthTag    String
+  userNameKeyVersion Int     @default(0)
+  emailEncrypted     String  @unique
+  emailIv            String?
+  emailAuthTag       String?
+  emailKeyVersion    Int     @default(0)
+  emailBlindIndex    String? @unique
+  emailVerified      Boolean @default(false)
+}
