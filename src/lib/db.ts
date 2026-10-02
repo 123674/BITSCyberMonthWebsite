@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { success } from "zod";
 import { imagekit } from "./imagekit";
 import { prisma } from "./prisma";
 import { slugify } from "@/func/stringFunc";
@@ -45,6 +45,7 @@ const FileMetaSchema = z.object({
 })
 
 
+
 const EventForDBSchema = z.object({
     title: z.string(),
     description: z.string(),
@@ -55,11 +56,45 @@ const EventForDBSchema = z.object({
     contactDetails: z.string(),
     paymentDetails: z.string(),
     startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)),
-    bannerLink : FileMetaSchema,
-    eventSlug : z.string(),
-    publish : z.boolean()
+    bannerLink: FileMetaSchema,
+    eventSlug: z.string(),
+    publish: z.boolean()
+})
+
+const allowedLogoFormat = new Set(['image/png', 'image/jpeg', 'image/webp']);
+
+
+const EventForDBUpdateInputSchema = z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    location: z.string().optional(),
+    mode: z.enum(['Offline', 'Online', 'Mixed']).optional(),
+    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']).optional(),
+    formLink: z.url().optional(),
+    contactDetails: z.string().optional(),
+    paymentDetails: z.string().optional(),
+    startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)).optional(),
+    eventPoster: z.instanceof(File).optional().nullable()
+        .refine((f) => !f || f.size > 1024, 'Logo must atleast 1kB')
+        .refine((f) => !f || f.size < 1024 * 1024 * 1024, 'Logo must be less than 1MB')
+        .refine((f) => !f || allowedLogoFormat.has(f.type), 'Logo must be a png, jpeg or webp'),
+    publish: z.boolean()
+})
+const EventForDBUpdateSchema = z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    location: z.string().optional(),
+    mode: z.enum(['Offline', 'Online', 'Mixed']).optional(),
+    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']).optional(),
+    formLink: z.url().optional(),
+    contactDetails: z.string().optional(),
+    paymentDetails: z.string().optional(),
+    startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)).optional(),
+    bannerLink: FileMetaSchema,
+    publish: z.boolean()
 })
 const EventFromDBSchema = z.object({
+    eventID: z.string(),
     title: z.string(),
     description: z.string(),
     location: z.string(),
@@ -69,9 +104,9 @@ const EventFromDBSchema = z.object({
     contactDetails: z.string(),
     paymentDetails: z.string(),
     startDate: z.date(),
-    bannerLink : FileMetaSchema,
-    eventSlug : z.string(),
-    publish : z.boolean()
+    bannerLink: FileMetaSchema,
+    eventSlug: z.string(),
+    publish: z.boolean()
 })
 
 const EventFromBDBriefSchema = z.object({
@@ -80,8 +115,8 @@ const EventFromBDBriefSchema = z.object({
     mode: z.enum(['Offline', 'Online', 'Mixed']),
     eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']),
     startDate: z.date(),
-    bannerLink : FileMetaSchema,
-    eventSlug : z.string()
+    bannerLink: FileMetaSchema,
+    eventSlug: z.string()
 })
 
 type ImageUploadReturnType = z.infer<typeof FileMetaSchema>
@@ -90,14 +125,14 @@ type ImageUploadReturnType = z.infer<typeof FileMetaSchema>
 type PrismaClientOrTx = typeof prisma | Prisma.TransactionClient;
 
 export const briefPublishedEventsDataGET = async () => {
-    const rawData =  await prisma.events.findMany({
-        where : {
-            publish : true
+    const rawData = await prisma.events.findMany({
+        where: {
+            publish: true
         },
         select: {
-            title : true,
+            title: true,
             eventID: true,
-            eventSlug : true,
+            eventSlug: true,
             mode: true,
             bannerLink: true,
             startDate: true,
@@ -109,11 +144,11 @@ export const briefPublishedEventsDataGET = async () => {
 }
 
 export const briefAllEventsDataGET = async () => {
-    const rawData =  await prisma.events.findMany({
+    const rawData = await prisma.events.findMany({
         select: {
             eventID: true,
-            eventSlug : true,
-            title : true,
+            eventSlug: true,
+            title: true,
             mode: true,
             bannerLink: true,
             startDate: true,
@@ -126,25 +161,43 @@ export const briefAllEventsDataGET = async () => {
 export const detailedPublishedEventDataGET = async (slug: string) => {
     const res = await prisma.events.findFirst({
         where: {
-            eventSlug : { equals: slug, mode: "insensitive" },
-            publish : true
+            eventSlug: { equals: slug, mode: "insensitive" },
+            publish: true
         },
     })
     return EventFromDBSchema.parse(res);
 }
 
 export const detailedAllEventDataGET = async (slug: string) => {
-    const res = await prisma.events.findFirst({
-        where: {
-            eventSlug : { equals: slug, mode: "insensitive" },
-        },
-    })
-    return EventFromDBSchema.parse(res);
+    try {
+        const res = await prisma.events.findFirst({
+            where: {
+                eventSlug: { equals: slug, mode: "insensitive" },
+            },
+        })
+        return { data: EventFromDBSchema.parse(res), success: true };
+    } catch (e) {
+        console.log("Error during admin event detail GET : ", e);
+        return { success: false, error: 'No Event Data found' }
+    }
+}
+export const detailedAllEventDatabyIDGET = async (eventID: string) => {
+    try {
+        const res = await prisma.events.findFirst({
+            where: {
+                eventID
+            },
+        })
+        return { data: EventFromDBSchema.parse(res), success: true };
+    } catch (e) {
+        console.log("Error during admin event detail by ID GET : ", e);
+        return { success: false, error: 'No Event Data found' }
+    }
 }
 
 
 
-export const checkEventTxSlugExists = async (tx : PrismaClientOrTx,slug : string) => {
+export const checkEventTxSlugExists = async (tx: PrismaClientOrTx, slug: string) => {
     return await prisma.events.findFirst({
         where: { eventSlug: { equals: slug, mode: "insensitive" } },
         select: { eventID: true }
@@ -161,22 +214,52 @@ const validateEventSlugGET = async (tx: PrismaClientOrTx, eventTitle: string): P
     return slug;
 }
 
-export const addingEventToDbPOST = async (eventData: EventType & {publish : boolean}) : Promise<string> => {
-    return await prisma.$transaction(async (tx) =>  {
+export const addingEventToDbPOST = async (eventData: EventType & { publish: boolean }): Promise<string> => {
+    return await prisma.$transaction(async (tx) => {
         const fileUploadMeta = await imagekit.upload({
             file: Buffer.from(await eventData.eventPoster!.arrayBuffer()),
             fileName: eventData.title + ".png",
             isPublished: true,
         })
         const fileUploadParsedMeta = FileMetaSchema.parse(fileUploadMeta);
-        const eventSlug = await validateEventSlugGET(tx,eventData.title);
-        const eventDbData = EventForDBSchema.parse({...eventData,bannerLink : fileUploadParsedMeta,eventSlug : eventSlug })
+        const eventSlug = await validateEventSlugGET(tx, eventData.title);
+        const eventDbData = EventForDBSchema.parse({ ...eventData, bannerLink: fileUploadParsedMeta, eventSlug: eventSlug })
         await tx.events.create({
-            data : eventDbData
+            data: eventDbData
         })
 
         return eventSlug;
 
+    })
+
+}
+
+type EventForDBUpdateType = z.infer<typeof EventForDBUpdateInputSchema>
+
+
+export const updatingEventToDbPATCH = async (eventData: EventForDBUpdateType, eventID: string): Promise<string> => {
+    return await prisma.$transaction(async (tx) => {
+        let fileUploadParsedMeta: ImageUploadReturnType | null = null;
+        if (eventData.eventPoster) {
+            const fileUploadMeta = await imagekit.upload({
+                file: Buffer.from(await eventData.eventPoster!.arrayBuffer()),
+                fileName: eventData.title + ".png",
+                isPublished: true,
+            })
+            fileUploadParsedMeta = FileMetaSchema.parse(fileUploadMeta);
+        }
+        const eventDbData = EventForDBUpdateSchema.parse(eventData)
+        const res = await tx.events.update({
+            where: {
+                eventID
+            },
+            data: {
+                eventDbData
+            }, select : {
+                eventSlug : true
+            }
+        })
+        return res.eventSlug
     })
 
 }
