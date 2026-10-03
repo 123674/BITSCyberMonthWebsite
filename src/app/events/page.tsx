@@ -1,11 +1,17 @@
-import { briefPublishedEventsDataGET } from '@/lib/db';
 import React from 'react'
+import SiteChrome from '@/components/site/SiteChrome';
+import EventsDirectory from '@/components/events/EventsDirectory';
+import { getPublishedEventCards } from '@/lib/eventCards';
+
+export const dynamic = 'force-dynamic';
 
 const page = async (): Promise<React.JSX.Element> => {
-    const eventsData = await briefPublishedEventsDataGET();
-    console.log(eventsData);
+    const events = await getPublishedEventCards();
+
     return (
-        <div>page</div>
+        <SiteChrome>
+            <EventsDirectory events={events} />
+        </SiteChrome>
     )
 }
 

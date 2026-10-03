@@ -90,7 +90,7 @@ const EventForDBUpdateSchema = z.object({
     contactDetails: z.string().optional(),
     paymentDetails: z.string().optional(),
     startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)).optional(),
-    bannerLink: FileMetaSchema,
+    bannerLink: FileMetaSchema.optional(),
     publish: z.boolean()
 })
 const EventFromDBSchema = z.object({
@@ -140,7 +140,7 @@ export const briefPublishedEventsDataGET = async () => {
         }
     })
 
-    return EventFromBDBriefSchema.parse(rawData)
+    return z.array(EventFromBDBriefSchema).parse(rawData)
 }
 
 export const briefAllEventsDataGET = async () => {
@@ -198,7 +198,7 @@ export const detailedAllEventDatabyIDGET = async (eventID: string) => {
 
 
 export const checkEventTxSlugExists = async (tx: PrismaClientOrTx, slug: string) => {
-    return await prisma.events.findFirst({
+    return await tx.events.findFirst({
         where: { eventSlug: { equals: slug, mode: "insensitive" } },
         select: { eventID: true }
     })
@@ -210,6 +210,7 @@ const validateEventSlugGET = async (tx: PrismaClientOrTx, eventTitle: string): P
     let counter = 1;
     while (await checkEventTxSlugExists(tx, slug)) {
         slug = `${base}${counter}`
+        counter += 1
     }
     return slug;
 }
@@ -248,14 +249,15 @@ export const updatingEventToDbPATCH = async (eventData: EventForDBUpdateType, ev
             })
             fileUploadParsedMeta = FileMetaSchema.parse(fileUploadMeta);
         }
-        const eventDbData = EventForDBUpdateSchema.parse(eventData)
+        const eventDbData = EventForDBUpdateSchema.parse({
+            ...eventData,
+            ...(fileUploadParsedMeta ? { bannerLink: fileUploadParsedMeta } : {}),
+        })
         const res = await tx.events.update({
             where: {
                 eventID
             },
-            data: {
-                eventDbData
-            }, select : {
+            data: eventDbData, select : {
                 eventSlug : true
             }
         })

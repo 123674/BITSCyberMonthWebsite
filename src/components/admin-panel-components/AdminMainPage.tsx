@@ -1,6 +1,7 @@
 "use client";
 import Link from 'next/link';
 import React, { useState } from 'react'
+import { logoutAction } from '@/app/admin/login/actions';
 
 type EventsDataType = {
     title: string,
@@ -44,6 +45,9 @@ const AdminMainPage = ({ eventsData }: { eventsData: EventsDataType }) : React.J
             <header>
                 <h1>Your Events</h1>
                 <p>Manage your events</p>
+                <form action={logoutAction}>
+                    <button type="submit">Log out</button>
+                </form>
             </header>
             <div>
                 <Link href={'./admin/add'}>
