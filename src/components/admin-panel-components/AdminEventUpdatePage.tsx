@@ -181,15 +181,10 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
                         id="formLinkInputField"
                         value={formResponseState.formLink}
                         onChange={(e) => {
-                            if (!/^https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{2,5})?(?:[/?#]\S*)?$/.test(e.target.value)) {
-                                setFormResponseError(prev => ({ ...prev, formLink: ['Invalid Form Link'] }))
-                                return;
-                            }
-
+                            const isValidLink = /^https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{2,5})?(?:[/?#]\S*)?$/.test(e.target.value);
+                            setFormResponseError(prev => ({ ...prev, formLink: [isValidLink ? '' : 'Invalid Form Link'] }))
                             setFormResponseState(prev => ({ ...prev, formLink: e.target.value }))
-                        }
-
-                        }
+                        }}
                     />
                     {formResponseError.formLink?.[0] && <ErrorMessageDiv message={formResponseError.formLink?.[0]} textSize={16} />}
                 </fieldset>

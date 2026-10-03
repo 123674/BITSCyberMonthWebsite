@@ -3,6 +3,8 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import React from 'react'
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   params: Promise<{ eventslug: string }>;
 };

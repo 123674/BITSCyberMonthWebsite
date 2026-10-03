@@ -45,7 +45,7 @@ const toLocalISOString = (date = new Date()) => {
     return localISOTime; // "2026-09-05T14:30:00.000"
 }
 
-const page = () => {
+const AddEventPage = () => {
     const [formResponseState, setFormResponseState] = useState<EventType>({ title: '', description: '', eventPoster: null, location: '', mode: 'Offline', eventType: 'Upcomming', formLink: '', contactDetails: '', paymentDetails: '', startDate: toLocalISOString().slice(0, 16) });
     const [formResponseError, setFormResponseError] = useState<FormResponseError>({ metaError: [''], title: [''], description: [''], eventPoster: [''], location: [''], mode: [''], eventType: [''], formLink: [''], contactDetails: [''], paymentDetails: [''], startDate: [''] });
     const [successMessage, setSuccessMessage] = useState<string>('');
@@ -169,15 +169,10 @@ const page = () => {
                         id="formLinkInputField"
                         value={formResponseState.formLink}
                         onChange={(e) => {
-                            if (!/^https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{2,5})?(?:[/?#]\S*)?$/.test(e.target.value)) {
-                                setFormResponseError(prev => ({ ...prev, formLink: ['Invalid Form Link'] }))
-                                return;
-                            }
-
+                            const isValidLink = /^https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{2,5})?(?:[/?#]\S*)?$/.test(e.target.value);
+                            setFormResponseError(prev => ({ ...prev, formLink: [isValidLink ? '' : 'Invalid Form Link'] }))
                             setFormResponseState(prev => ({ ...prev, formLink: e.target.value }))
-                        }
-
-                        }
+                        }}
                     />
                     {formResponseError.formLink?.[0] && <ErrorMessageDiv message={formResponseError.formLink?.[0]} textSize={16} />}
                 </fieldset>
@@ -207,4 +202,4 @@ const page = () => {
     )
 }
 
-export default page
+export default AddEventPage

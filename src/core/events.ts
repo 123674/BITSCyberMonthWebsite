@@ -3,7 +3,19 @@
 import validate from "@/func/stringFunc";
 import { addingEventToDbPOST, detailedAllEventDatabyIDGET, updatingEventToDbPATCH } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { ADMIN_COOKIE, isValidAdminSession } from "@/lib/adminAuth";
 import z, { success } from "zod";
+
+// Server actions can be called directly, so each one re-checks the admin session.
+const isAdmin = async (): Promise<boolean> => isValidAdminSession((await cookies()).get(ADMIN_COOKIE)?.value);
+const NOT_ADMIN = { success: false, error: { metaError: ['Admin login required.'] } };
+
+// ImageKit rejects uploads with this message when its API keys are wrong or missing.
+const imageUploadErrorMessage = (e: unknown): string | null =>
+    typeof e === 'object' && e !== null && 'message' in e && /cannot be authenticated/i.test(String(e.message))
+        ? 'Poster upload failed: the ImageKit keys in the server settings are not valid.'
+        : null;
 
 const allowedLogoFormat = new Set(['image/png', 'image/jpeg', 'image/webp']);
 const EventSchema = z.object({
@@ -47,6 +59,7 @@ type EventForDBUpdateType = z.infer<typeof EventForDBUpdateSchema>
 
 
 export const addEvent = async (formData: EventType, publish : boolean) => {
+    if (!(await isAdmin())) return NOT_ADMIN;
     // redis validation
     let redir : string = '';
     try {
@@ -54,14 +67,18 @@ export const addEvent = async (formData: EventType, publish : boolean) => {
         if (!parsedFormData.success) {
             return { error: z.flattenError(parsedFormData.error).fieldErrors, success: false }
         }
-        
-        
+        // A new event needs a poster: it is uploaded as the event's banner.
+        if (!parsedFormData.data.eventPoster) {
+            return { error: { eventPoster: ['Please upload an event poster.'] }, success: false }
+        }
+
+
         const validTitle = validate(parsedFormData.data.title);
         const validDesc = validate(parsedFormData.data.description);
         const validLoc = validate(parsedFormData.data.location);
         const validContactDetails = validate(parsedFormData.data.contactDetails);
         const validPaymentDetails = validate(parsedFormData.data.paymentDetails);
-        
+
         if(!validTitle.valid) {
             return { error: {title : [validTitle.error]}, success: false }
         }
@@ -93,12 +110,13 @@ export const addEvent = async (formData: EventType, publish : boolean) => {
 
     } catch (e) {
         console.log("Error during Event Creation : ", e);
-        return { success: false, error: { metaError: 'Something went wrong!\nTry again later' } }
+        return { success: false, error: { metaError: [imageUploadErrorMessage(e) ?? 'Something went wrong! Try again later.'] } }
     }
     redir ? redirect(`/events/${redir}?preview=true`) : null
 }
 
 export const updateEvent = async (formData: EventType,rawEventID : string, publish : boolean) => {
+    if (!(await isAdmin())) return NOT_ADMIN;
     // redis validation
     let redir : string = '';
     try {
@@ -109,6 +127,9 @@ export const updateEvent = async (formData: EventType,rawEventID : string, publi
         
         const eventID = z.uuid().parse(rawEventID);
         const eventData = await detailedAllEventDatabyIDGET(eventID);
+        if (!eventData.success || !eventData.data) {
+            return { success: false, error: { metaError: ["Event not found."] } }
+        }
         
         
         const validTitle = validate(parsedFormData.data.title);
@@ -158,10 +179,7 @@ export const updateEvent = async (formData: EventType,rawEventID : string, publi
         if(parsedFormData.data.formLink !== eventData.data?.formLink) {
             validEvent.formLink = parsedFormData.data.formLink
         }
-        if(parsedFormData.data.formLink !== eventData.data?.formLink) {
-            validEvent.formLink = parsedFormData.data.formLink
-        }
-        if(parsedFormData.data.startDate !== new Date(eventData.data?.startDate!).toISOString()) {
+        if(parsedFormData.data.startDate !== eventData.data.startDate.toISOString()) {
             validEvent.startDate = parsedFormData.data.startDate
         }
         if(parsedFormData.data.eventPoster) {
@@ -173,8 +191,7 @@ export const updateEvent = async (formData: EventType,rawEventID : string, publi
 
     } catch (e) {
         console.log("Error during Event Creation : ", e);
-        return { success: false, error: { metaError: 'Something went wrong!\nTry again later' } }
+        return { success: false, error: { metaError: [imageUploadErrorMessage(e) ?? 'Something went wrong! Try again later.'] } }
     }
     redir ? redirect(`/events/${redir}?preview=true`) : null
 }
-

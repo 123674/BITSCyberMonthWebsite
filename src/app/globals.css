@@ -24,3 +24,172 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ─── Entrance motion: text fades + slides up as it enters the screen ───────── */
+/* Add className="reveal" (optionally style={{ animationDelay: "120ms" }} to
+   stagger) and call useReveal() in the page component. */
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal {
+  opacity: 0;
+}
+
+/* Content visible on first load animates straight away with CSS only, so it
+   never waits for JavaScript to appear. */
+.reveal-onload {
+  animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.is-visible,
+  .reveal-onload {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* ─── Homepage hero animations ──────────────────────────────────────────────── */
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.92); }
+  50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.06); }
+}
+
+@keyframes heroScan {
+  0% { top: -12%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 105%; opacity: 0; }
+}
+
+
+.hero-float {
+  animation: heroFloat 6s ease-in-out infinite;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 50%;
+  left: calc(50% - 1.25rem);
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.35) 0%, rgba(139, 92, 246, 0.22) 40%, transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+  animation: heroGlowPulse 4.5s ease-in-out infinite;
+}
+
+.hero-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(56, 189, 248, 0.08) 45%, rgba(125, 211, 252, 0.55) 50%, rgba(56, 189, 248, 0.08) 55%, transparent 100%);
+  mix-blend-mode: screen;
+  animation: heroScan 3.8s ease-in-out infinite;
+}
+
+
+
+
+
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-float,
+  .hero-glow,
+  .hero-scan {
+    animation: none;
+  }
+  .hero-scan {
+    display: none;
+  }
+}
+
+/* ─── Homepage hero layout (two columns on desktop, stacked on phones) ──────── */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 64px;
+  box-sizing: border-box;
+}
+
+.hero-text {
+  flex: 0 0 52%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 1.5rem 0 4rem;
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.hero-heading {
+  position: relative;
+  display: inline-block;
+  max-width: max-content;
+}
+
+.hero-visual {
+  position: relative;
+  flex: 0 0 48%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 2.5rem 2rem 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .hero-section {
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 96px 0 3rem;
+  }
+  .hero-text,
+  .hero-visual {
+    flex: none;
+    width: 100%;
+    padding: 0 1.25rem;
+  }
+  /* centre the hero text when stacked */
+  .hero-text {
+    align-items: center;
+    text-align: center;
+  }
+  .hero-heading {
+    max-width: 100%;
+  }
+  /* overrides the desktop size set inline on the title */
+  .hero-title {
+    font-size: clamp(2.5rem, 12vw, 3.6rem) !important;
+  }
+  .hero-visual > div:not(.hero-glow) {
+    max-width: 340px !important;
+  }
+}
