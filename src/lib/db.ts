@@ -139,8 +139,8 @@ export const briefPublishedEventsDataGET = async () => {
             eventType: true,
         }
     })
-
-    return EventFromBDBriefSchema.parse(rawData)
+    console.log("raw data",rawData);
+    return z.array(EventFromBDBriefSchema).parse(rawData)
 }
 
 export const briefAllEventsDataGET = async () => {
