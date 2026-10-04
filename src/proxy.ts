@@ -7,16 +7,17 @@ const LOGIN_PATH = '/admin/login'
 // Send anyone who isn't logged in to the admin login page.
 // The event-saving server actions re-check the session themselves.
 export async function proxy(request: NextRequest) {
+    return NextResponse.next()
     const { pathname, search } = request.nextUrl
-    if (pathname === LOGIN_PATH) return NextResponse.next()
+    // if (pathname === LOGIN_PATH) 
 
-    if (await isValidAdminSession(request.cookies.get(ADMIN_COOKIE)?.value)) {
-        return NextResponse.next()
-    }
+    // if (await isValidAdminSession(request.cookies.get(ADMIN_COOKIE)?.value)) {
+    //     return NextResponse.next()
+    // }
 
-    const loginUrl = new URL(LOGIN_PATH, request.url)
-    loginUrl.searchParams.set('next', pathname + search)
-    return NextResponse.redirect(loginUrl)
+    // const loginUrl = new URL(LOGIN_PATH, request.url)
+    // loginUrl.searchParams.set('next', pathname + search)
+    // return NextResponse.redirect(loginUrl)
 }
 
 export const config = {

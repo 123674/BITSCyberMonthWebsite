@@ -18,6 +18,7 @@ const page = async ({params} : PageProps): Promise<React.JSX.Element> => {
     }
     const eventsData = await detailedPublishedEventDataGET(eventslug);
 
+    console.log(eventsData);
     return (
         <div>
             <Image

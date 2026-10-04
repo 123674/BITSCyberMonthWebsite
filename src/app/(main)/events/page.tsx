@@ -7,11 +7,10 @@ export const dynamic = 'force-dynamic';
 
 const page = async (): Promise<React.JSX.Element> => {
     const events = await getPublishedEventCards();
-
     return (
-        <SiteChrome>
-            <EventsDirectory events={events} />
-        </SiteChrome>
+        <div>
+            
+        </div>
     )
 }
 

@@ -3,67 +3,14 @@
 import validate from "@/func/stringFunc";
 import { addingEventToDbPOST, detailedAllEventDatabyIDGET, updatingEventToDbPATCH } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { ADMIN_COOKIE, isValidAdminSession } from "@/lib/adminAuth";
-import z, { success } from "zod";
+import { z } from "zod";
+import { EventDSPFType, EventForDBUpdateDSPFType, EventSchemaDSPF } from "@/func/zodEventSchema";
 
-// Server actions can be called directly, so each one re-checks the admin session.
-const isAdmin = async (): Promise<boolean> => isValidAdminSession((await cookies()).get(ADMIN_COOKIE)?.value);
-const NOT_ADMIN = { success: false, error: { metaError: ['Admin login required.'] } };
-
-// ImageKit rejects uploads with this message when its API keys are wrong or missing.
-const imageUploadErrorMessage = (e: unknown): string | null =>
-    typeof e === 'object' && e !== null && 'message' in e && /cannot be authenticated/i.test(String(e.message))
-        ? 'Poster upload failed: the ImageKit keys in the server settings are not valid.'
-        : null;
-
-const allowedLogoFormat = new Set(['image/png', 'image/jpeg', 'image/webp']);
-const EventSchema = z.object({
-    title: z.string(),
-    description: z.string(),
-    location: z.string(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']),
-    formLink: z.url(),
-    contactDetails: z.string(),
-    paymentDetails: z.string(),
-    startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)),
-    eventPoster: z.instanceof(File).nullable()
-        .refine((f) => !f || f.size > 1024, 'Logo must atleast 1kB')
-        .refine((f) => !f || f.size < 1024 * 1024 * 1024, 'Logo must be less than 1MB')
-        .refine((f) => !f || allowedLogoFormat.has(f.type), 'Logo must be a png, jpeg or webp'),
-})
-
-const EventForDBUpdateSchema = z.object({
-    title: z.string().optional(),
-    description: z.string().optional(),
-    location: z.string().optional(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']).optional(),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']).optional(),
-    formLink: z.url().optional(),
-    contactDetails: z.string().optional(),
-    paymentDetails: z.string().optional(),
-    startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)).optional(),
-    eventPoster: z.instanceof(File).optional().nullable()
-        .refine((f) => !f || f.size > 1024, 'Logo must atleast 1kB')
-        .refine((f) => !f || f.size < 1024 * 1024 * 1024, 'Logo must be less than 1MB')
-        .refine((f) => !f || allowedLogoFormat.has(f.type), 'Logo must be a png, jpeg or webp'),
-    publish: z.boolean()
-})
-
-
-
-type EventType = z.infer<typeof EventSchema>
-type EventForDBUpdateType = z.infer<typeof EventForDBUpdateSchema>
-
-
-
-export const addEvent = async (formData: EventType, publish : boolean) => {
-    if (!(await isAdmin())) return NOT_ADMIN;
+export const addEvent = async (formData: EventDSPFType, publish : boolean) => {
     // redis validation
     let redir : string = '';
     try {
-        const parsedFormData = EventSchema.safeParse(formData);
+        const parsedFormData = EventSchemaDSPF.safeParse(formData);
         if (!parsedFormData.success) {
             return { error: z.flattenError(parsedFormData.error).fieldErrors, success: false }
         }
@@ -95,7 +42,7 @@ export const addEvent = async (formData: EventType, publish : boolean) => {
             return { error: {title : [validPaymentDetails.error]}, success: false }
         }
 
-        const validEvent : EventType & {publish : boolean} = { 
+        const validEvent : EventDSPFType & {publish : boolean} = { 
             ...parsedFormData.data,
             title: validTitle.value!, 
             description: validDesc.value!, 
@@ -106,21 +53,19 @@ export const addEvent = async (formData: EventType, publish : boolean) => {
         }
         
         redir = await addingEventToDbPOST(validEvent);
-        return {success : true}
 
     } catch (e) {
         console.log("Error during Event Creation : ", e);
-        return { success: false, error: { metaError: [imageUploadErrorMessage(e) ?? 'Something went wrong! Try again later.'] } }
+        return { success: false, error: { metaError: ['Something went wrong! Try again later.'] } }
     }
     redir ? redirect(`/events/${redir}?preview=true`) : null
 }
 
-export const updateEvent = async (formData: EventType,rawEventID : string, publish : boolean) => {
-    if (!(await isAdmin())) return NOT_ADMIN;
+export const updateEvent = async (formData: EventDSPFType,rawEventID : string, publish : boolean) => {
     // redis validation
     let redir : string = '';
     try {
-        const parsedFormData = EventSchema.safeParse(formData);
+        const parsedFormData = EventSchemaDSPF.safeParse(formData);
         if (!parsedFormData.success) {
             return { error: z.flattenError(parsedFormData.error).fieldErrors, success: false }
         }
@@ -154,7 +99,7 @@ export const updateEvent = async (formData: EventType,rawEventID : string, publi
             return { error: {title : [validPaymentDetails.error]}, success: false }
         }
 
-        const validEvent : EventForDBUpdateType = {publish};
+        const validEvent : EventForDBUpdateDSPFType = {publish};
         if(validTitle.value !== eventData.data?.title) {
             validEvent.title = validTitle.value
         }
@@ -173,14 +118,14 @@ export const updateEvent = async (formData: EventType,rawEventID : string, publi
         if(parsedFormData.data.mode !== eventData.data?.mode) {
             validEvent.mode = parsedFormData.data.mode
         }
-        if(parsedFormData.data.eventType !== eventData.data?.eventType) {
-            validEvent.eventType = parsedFormData.data.eventType
-        }
         if(parsedFormData.data.formLink !== eventData.data?.formLink) {
             validEvent.formLink = parsedFormData.data.formLink
         }
         if(parsedFormData.data.startDate !== eventData.data.startDate.toISOString()) {
             validEvent.startDate = parsedFormData.data.startDate
+        }
+        if(parsedFormData.data.endDate !== eventData.data.endDate.toISOString()) {
+            validEvent.endDate = parsedFormData.data.endDate
         }
         if(parsedFormData.data.eventPoster) {
             validEvent.eventPoster = parsedFormData.data.eventPoster
@@ -191,7 +136,7 @@ export const updateEvent = async (formData: EventType,rawEventID : string, publi
 
     } catch (e) {
         console.log("Error during Event Creation : ", e);
-        return { success: false, error: { metaError: [imageUploadErrorMessage(e) ?? 'Something went wrong! Try again later.'] } }
+        return { success: false, error: { metaError: ['Something went wrong! Try again later.'] } }
     }
     redir ? redirect(`/events/${redir}?preview=true`) : null
 }

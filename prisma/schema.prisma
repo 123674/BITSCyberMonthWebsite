@@ -18,12 +18,6 @@ enum ModeList {
   Mixed
 }
 
-enum EventTypeList {
-  Completed
-  OnGoing
-  Upcomming
-}
-
 model Events {
   eventID        String        @id @default(uuid())
   title          String        @unique
@@ -33,25 +27,27 @@ model Events {
   bannerLink     Json
   publish        Boolean       @default(false)
   mode           ModeList
-  eventType      EventTypeList
   formLink       String
   contactDetails String
   paymentDetails String
   startDate      DateTime
+  endDate        DateTime
 
   @@index([title, eventSlug])
 }
 
 model Admin {
   adminID            String  @id @default(uuid())
-  userNameEncrypted  String
-  userNameIv         String
-  userNameAuthTag    String
+  userNameEncrypted  String?
+  userNameIv         String?
+  userNameAuthTag    String?
   userNameKeyVersion Int     @default(0)
   emailEncrypted     String  @unique
-  emailIv            String?
-  emailAuthTag       String?
+  emailIv            String
+  emailAuthTag       String
   emailKeyVersion    Int     @default(0)
-  emailBlindIndex    String? @unique
+  emailBlindIndex    String  @unique
   emailVerified      Boolean @default(false)
+
+  @@index([adminID])
 }

@@ -5,25 +5,8 @@ import ErrorMessageDiv from '@/components/wide-spread-components/ErrorMessageDiv
 import z from 'zod';
 import Image from 'next/image';
 import { addEvent, updateEvent } from '@/core/events';
+import { EventDSPFType, EventSchemaDSPF, EventSchemaDSPFTLocal, EventTypeDDPLWithoutlug } from '@/func/zodEventSchema';
 
-const allowedLogoFormat = new Set(['image/png', 'image/jpeg', 'image/webp']);
-const EventSchema = z.object({
-    title: z.string(),
-    description: z.string(),
-    location: z.string(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']),
-    formLink: z.url(),
-    contactDetails: z.string(),
-    paymentDetails: z.string(),
-    startDate: z.string().refine((stDate) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d{1,3})?)?$/.test(stDate), 'Invalid Date Format'),
-    eventPoster: z.instanceof(File).nullable()
-        .refine((f) => !f || f.size > 1024, 'Logo must atleast 1kB')
-        .refine((f) => !f || f.size < 1024 * 1024 * 1024, 'Logo must be less than 1MB')
-        .refine((f) => !f || allowedLogoFormat.has(f.type), 'Logo must be a png, jpeg or webp'),
-})
-
-type EventType = z.infer<typeof EventSchema>
 
 type EventFromDBType = {
  title: string;
@@ -49,6 +32,7 @@ type FormResponseError = {
     contactDetails?: string[],
     paymentDetails?: string[],
     startDate?: string[]
+    endDate?: string[]
 }
 
 const toLocalISOString = (date = new Date()) => {
@@ -57,14 +41,14 @@ const toLocalISOString = (date = new Date()) => {
     return localISOTime; // "2026-09-05T14:30:00.000"
 }
 
-const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : EventFromDBType, url : string,eventID : string}) => {
-    const [formResponseState, setFormResponseState] = useState<EventType>({...previousData,startDate : toLocalISOString(previousData.startDate),eventPoster : null});
-    const [formResponseError, setFormResponseError] = useState<FormResponseError>({ metaError: [''], title: [''], description: [''], eventPoster: [''], location: [''], mode: [''], eventType: [''], formLink: [''], contactDetails: [''], paymentDetails: [''], startDate: [''] });
+const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : EventTypeDDPLWithoutlug, url : string,eventID : string}) => {
+    const [formResponseState, setFormResponseState] = useState<EventDSPFType>({...previousData,startDate : toLocalISOString(previousData.startDate),endDate : toLocalISOString(previousData.endDate),eventPoster : null});
+    const [formResponseError, setFormResponseError] = useState<FormResponseError>({ metaError: [''], title: [''], description: [''], eventPoster: [''], location: [''], mode: [''], eventType: [''], formLink: [''], contactDetails: [''], paymentDetails: [''], startDate: [''],endDate: [''] });
     const [successMessage, setSuccessMessage] = useState<string>('');
     const [eventPosterPreview, setEventPosterPreview] = useState<string>(url);
     const handleChannlLogoChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const file = e.target.files![0]
-        const parsedImage = EventSchema.shape.eventPoster.safeParse(file)
+        const parsedImage = EventSchemaDSPF.shape.eventPoster.safeParse(file)
         if (!parsedImage.success) {
             setFormResponseError(prev => ({ ...prev, eventPoster: [parsedImage.error.issues[0]?.message] }));
             return;
@@ -74,13 +58,13 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
     }
 
     const handleFormSubmission = async (publish : boolean) => {
-        const parsedFormData = EventSchema.safeParse(formResponseState);
+        const parsedFormData = EventSchemaDSPFTLocal.safeParse(formResponseState);
         if (!parsedFormData.success) {
             setFormResponseError(z.flattenError(parsedFormData.error).fieldErrors as FormResponseError);
             return;
         }
 
-        const res = await updateEvent({...parsedFormData.data,startDate : new Date(parsedFormData.data.startDate).toISOString()},eventID,publish);
+        const res = await updateEvent({...parsedFormData.data,startDate : new Date(parsedFormData.data.startDate).toISOString(),endDate : new Date(parsedFormData.data.endDate).toISOString()},eventID,publish);
 
         if (!res?.success) {
             setFormResponseError(res?.error as FormResponseError);
@@ -93,7 +77,7 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
     }
 
     return (
-        <main>
+        <main className='text-white'>
             <Form action={() => { }} >
                 {formResponseError?.metaError?.[0] && <ErrorMessageDiv message={formResponseError.metaError?.[0]} textSize={16} />}
                 <fieldset>
@@ -116,6 +100,7 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
                     {formResponseError.description?.[0] && <ErrorMessageDiv message={formResponseError.description?.[0]} textSize={16} />}
                 </fieldset>
                 <fieldset>
+                    <legend>Start Date</legend>
                     <input
                         type='datetime-local'
                         value={formResponseState.startDate}
@@ -123,6 +108,16 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, startDate: e.target.value }))}
                     />
                     {formResponseError.startDate?.[0] && <ErrorMessageDiv message={formResponseError.startDate?.[0]} textSize={16} />}
+                </fieldset>
+                <fieldset>
+                    <legend>End Date</legend>
+                    <input
+                        type='datetime-local'
+                        value={formResponseState.endDate}
+                        min={new Date().toISOString().slice(0, 16)}
+                        onChange={(e) => setFormResponseState(prev => ({ ...prev, endDate: e.target.value }))}
+                    />
+                    {formResponseError.endDate?.[0] && <ErrorMessageDiv message={formResponseError.endDate?.[0]} textSize={16} />}
                 </fieldset>
                 <fieldset>
                     <input
@@ -166,13 +161,6 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
                     <button style={formResponseState.mode === 'Online' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, mode: 'Online' }))} type="button">Online</button>
                     <button style={formResponseState.mode === 'Mixed' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, mode: 'Mixed' }))} type="button">Mixed</button>
                     {formResponseError.mode?.[0] && <ErrorMessageDiv message={formResponseError.mode?.[0]} textSize={16} />}
-                </fieldset>
-                <fieldset>
-                    <legend>Event Status</legend>
-                    <button style={formResponseState.eventType === 'Upcomming' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, eventType: 'Upcomming' }))} type="button">Upcomming</button>
-                    <button style={formResponseState.eventType === 'OnGoing' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, eventType: 'OnGoing' }))} type="button">OnGoing</button>
-                    <button style={formResponseState.eventType === 'Completed' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, eventType: 'Completed' }))} type="button">Completed</button>
-                    {formResponseError.eventType?.[0] && <ErrorMessageDiv message={formResponseError.eventType?.[0]} textSize={16} />}
                 </fieldset>
                 <fieldset>
                     <legend>Google Form Link</legend>

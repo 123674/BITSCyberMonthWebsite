@@ -1,3 +1,4 @@
+import HomeMainPage from '@/components/home/HomeMainPage';
 import HomePage from '@/components/home/HomePage';
 import { getPublishedEventCards, type EventCardData } from '@/lib/eventCards';
 
@@ -12,5 +13,6 @@ export default async function Page() {
         // If the database is unreachable, still show the homepage (with an empty timeline).
         console.log("Error loading timeline events : ", e);
     }
-    return <HomePage timelineEvents={timelineEvents} />;
+    return (<HomeMainPage /> )
+    // return <HomePage timelineEvents={timelineEvents} />;
 }

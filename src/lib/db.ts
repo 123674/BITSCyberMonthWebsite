@@ -3,111 +3,8 @@ import { imagekit } from "./imagekit";
 import { prisma } from "./prisma";
 import { slugify } from "@/func/stringFunc";
 import { Prisma } from "@/generated/prisma/browser";
+import { EventDSPFType, EventSchemaDDPLWithSlugWithID, EventSchemaDSPL, EventSchemaDSPLWithoutSlug, EventSchemaDSPLWithoutSlugOptional, EventSchemaForDBDSPF, FileMetaSchema, ImageUploadReturnType } from "@/func/zodEventSchema";
 
-type EventType = {
-    title: string;
-    description: string;
-    location: string;
-    mode: "Online" | "Offline" | "Mixed";
-    eventType: "Completed" | "OnGoing" | "Upcomming";
-    formLink: string;
-    contactDetails: string;
-    paymentDetails: string;
-    startDate: string;
-    eventPoster: File | null;
-}
-
-const VersionInfoSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-})
-
-const AITagSchema = z.object({
-    name: z.string(),
-    confidence: z.number(),
-    source: z.string(),
-})
-
-const FileMetaSchema = z.object({
-    fileId: z.string(),
-    name: z.string(),
-    size: z.number(),
-    versionInfo: VersionInfoSchema.nullable(),
-    filePath: z.string(),
-    url: z.string(),
-    fileType: z.string(),
-    height: z.number().nullable(),
-    width: z.number().nullable(),
-    orientation: z.number().nullish(),
-    thumbnailUrl: z.string().nullable(),
-    AITags: z.array(AITagSchema).nullable(),
-    description: z.string().nullable(),
-})
-
-
-
-const EventForDBSchema = z.object({
-    title: z.string(),
-    description: z.string(),
-    location: z.string(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']),
-    formLink: z.url(),
-    contactDetails: z.string(),
-    paymentDetails: z.string(),
-    startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)),
-    bannerLink: FileMetaSchema,
-    eventSlug: z.string(),
-    publish: z.boolean()
-})
-
-const allowedLogoFormat = new Set(['image/png', 'image/jpeg', 'image/webp']);
-
-
-const EventForDBUpdateInputSchema = z.object({
-    title: z.string().optional(),
-    description: z.string().optional(),
-    location: z.string().optional(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']).optional(),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']).optional(),
-    formLink: z.url().optional(),
-    contactDetails: z.string().optional(),
-    paymentDetails: z.string().optional(),
-    startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)).optional(),
-    eventPoster: z.instanceof(File).optional().nullable()
-        .refine((f) => !f || f.size > 1024, 'Logo must atleast 1kB')
-        .refine((f) => !f || f.size < 1024 * 1024 * 1024, 'Logo must be less than 1MB')
-        .refine((f) => !f || allowedLogoFormat.has(f.type), 'Logo must be a png, jpeg or webp'),
-    publish: z.boolean()
-})
-const EventForDBUpdateSchema = z.object({
-    title: z.string().optional(),
-    description: z.string().optional(),
-    location: z.string().optional(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']).optional(),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']).optional(),
-    formLink: z.url().optional(),
-    contactDetails: z.string().optional(),
-    paymentDetails: z.string().optional(),
-    startDate: z.string().refine((st) => /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/.test(st)).optional(),
-    bannerLink: FileMetaSchema.optional(),
-    publish: z.boolean()
-})
-const EventFromDBSchema = z.object({
-    eventID: z.string(),
-    title: z.string(),
-    description: z.string(),
-    location: z.string(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']),
-    formLink: z.url(),
-    contactDetails: z.string(),
-    paymentDetails: z.string(),
-    startDate: z.date(),
-    bannerLink: FileMetaSchema,
-    eventSlug: z.string(),
-    publish: z.boolean()
-})
 
 const EventFromBDBriefSchema = z.object({
     title: z.string(),
@@ -115,11 +12,11 @@ const EventFromBDBriefSchema = z.object({
     mode: z.enum(['Offline', 'Online', 'Mixed']),
     eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']),
     startDate: z.date(),
+    endDate: z.date(),
     bannerLink: FileMetaSchema,
     eventSlug: z.string()
 })
 
-type ImageUploadReturnType = z.infer<typeof FileMetaSchema>
 
 
 type PrismaClientOrTx = typeof prisma | Prisma.TransactionClient;
@@ -165,7 +62,7 @@ export const detailedPublishedEventDataGET = async (slug: string) => {
             publish: true
         },
     })
-    return EventFromDBSchema.parse(res);
+    return EventSchemaDDPLWithSlugWithID.parse(res);
 }
 
 export const detailedAllEventDataGET = async (slug: string) => {
@@ -175,7 +72,7 @@ export const detailedAllEventDataGET = async (slug: string) => {
                 eventSlug: { equals: slug, mode: "insensitive" },
             },
         })
-        return { data: EventFromDBSchema.parse(res), success: true };
+        return { data: EventSchemaDDPLWithSlugWithID.parse(res), success: true };
     } catch (e) {
         console.log("Error during admin event detail GET : ", e);
         return { success: false, error: 'No Event Data found' }
@@ -188,7 +85,7 @@ export const detailedAllEventDatabyIDGET = async (eventID: string) => {
                 eventID
             },
         })
-        return { data: EventFromDBSchema.parse(res), success: true };
+        return { data: EventSchemaDDPLWithSlugWithID.parse(res), success: true };
     } catch (e) {
         console.log("Error during admin event detail by ID GET : ", e);
         return { success: false, error: 'No Event Data found' }
@@ -215,7 +112,7 @@ const validateEventSlugGET = async (tx: PrismaClientOrTx, eventTitle: string): P
     return slug;
 }
 
-export const addingEventToDbPOST = async (eventData: EventType & { publish: boolean }): Promise<string> => {
+export const addingEventToDbPOST = async (eventData: EventDSPFType & { publish: boolean }): Promise<string> => {
     return await prisma.$transaction(async (tx) => {
         const fileUploadMeta = await imagekit.upload({
             file: Buffer.from(await eventData.eventPoster!.arrayBuffer()),
@@ -224,7 +121,7 @@ export const addingEventToDbPOST = async (eventData: EventType & { publish: bool
         })
         const fileUploadParsedMeta = FileMetaSchema.parse(fileUploadMeta);
         const eventSlug = await validateEventSlugGET(tx, eventData.title);
-        const eventDbData = EventForDBSchema.parse({ ...eventData, bannerLink: fileUploadParsedMeta, eventSlug: eventSlug })
+        const eventDbData = EventSchemaDSPL.parse({ ...eventData, bannerLink: fileUploadParsedMeta, eventSlug: eventSlug })
         await tx.events.create({
             data: eventDbData
         })
@@ -235,7 +132,7 @@ export const addingEventToDbPOST = async (eventData: EventType & { publish: bool
 
 }
 
-type EventForDBUpdateType = z.infer<typeof EventForDBUpdateInputSchema>
+type EventForDBUpdateType = z.infer<typeof EventSchemaForDBDSPF>
 
 
 export const updatingEventToDbPATCH = async (eventData: EventForDBUpdateType, eventID: string): Promise<string> => {
@@ -249,7 +146,7 @@ export const updatingEventToDbPATCH = async (eventData: EventForDBUpdateType, ev
             })
             fileUploadParsedMeta = FileMetaSchema.parse(fileUploadMeta);
         }
-        const eventDbData = EventForDBUpdateSchema.parse({
+        const eventDbData = EventSchemaDSPLWithoutSlugOptional.parse({
             ...eventData,
             ...(fileUploadParsedMeta ? { bannerLink: fileUploadParsedMeta } : {}),
         })
@@ -257,11 +154,41 @@ export const updatingEventToDbPATCH = async (eventData: EventForDBUpdateType, ev
             where: {
                 eventID
             },
-            data: eventDbData, select : {
-                eventSlug : true
+            data: eventDbData, select: {
+                eventSlug: true
             }
         })
         return res.eventSlug
     })
 
+}
+
+type UserOAuthSignInType = {
+    emailEncrypted: string,
+    emailAuthTag: string,
+    emailIv: string,
+    emailKeyVersion: number,
+    userNameEncrypted: string,
+    userNameAuthTag: string,
+    userNameIv: string,
+    userNameKeyVersion: number,
+    emailBlindIndex: string,
+    emailVerified: boolean,
+}
+
+
+export const logOAuthUser = async (userID: string, userdata: UserOAuthSignInType) => {
+    try {
+        const result = await prisma.admin.update({
+            where: { emailBlindIndex: userdata.emailBlindIndex },
+            data: userdata,
+            select : {
+                adminID : true,
+                emailVerified : true
+            }
+        })
+        return result;
+    } catch (e) {
+        throw new Error("Storing UserData From OAuth Error : "+e);
+    }
 }
