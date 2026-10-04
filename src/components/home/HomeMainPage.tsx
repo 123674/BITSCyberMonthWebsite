@@ -2,6 +2,8 @@
 import { IEEE_CS_SOCIETY } from "@/lib/contants";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
+import EventsGrid from "./EventsGrid";
+import { EventFromBDBriefBreif } from "@/func/zodEventSchema";
 const binaryColumns = [
   `0
 1
@@ -291,24 +293,24 @@ function Button({
         "font-mono text-[10px] uppercase transition-all duration-300",
         primary
           ? [
-              "border border-green",
-              "bg-linear-to-r from-green to-green-bright",
-              "font-bold text-[#021009]",
-              "shadow-[0_0_25px_rgba(25,214,107,0.12)]",
-              "hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(25,214,107,0.24)]",
-            ].join(" ")
+            "border border-green",
+            "bg-linear-to-r from-green to-green-bright",
+            "font-bold text-[#021009]",
+            "shadow-[0_0_25px_rgba(25,214,107,0.12)]",
+            "hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(25,214,107,0.24)]",
+          ].join(" ")
           : [
-              "border border-[rgba(56,217,255,0.35)]",
-              "text-cyan",
-              "hover:border-cyan hover:bg-[rgba(56,217,255,0.07)]",
-            ].join(" "),
+            "border border-[rgba(56,217,255,0.35)]",
+            "text-cyan",
+            "hover:border-cyan hover:bg-[rgba(56,217,255,0.07)]",
+          ].join(" "),
       ].join(" ")}
     >
       {children}
     </a>
   );
 }
-export default function CyberMonthPage() {
+export default function CyberMonthPage({timelineEvents} : {timelineEvents : EventFromBDBriefBreif}) {
   const cursorGlowRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -327,7 +329,7 @@ export default function CyberMonthPage() {
       if (!terminalRef.current) return;
       const message =
         terminalMessages[
-          Math.floor(Math.random() * terminalMessages.length)
+        Math.floor(Math.random() * terminalMessages.length)
         ];
       const line = document.createElement("div");
       line.innerHTML = `&gt; ${message}`;
@@ -366,59 +368,7 @@ export default function CyberMonthPage() {
       {/* =====================================================
           NAVIGATION
       ===================================================== */}
-      <nav className="fixed left-0 right-0 top-0 z-100 flex h-19.5 items-center justify-between border-b border-[rgba(56,217,255,0.08)] bg-[rgba(2,4,8,0.72)] px-[5vw] backdrop-blur-[20px]">
-        <a href="#" className="flex items-center gap-3">
-          <div className="grid h-8.5 w-8.5 place-items-center bg-linear-to-br  font-mono text-[13px] font-bold text-white shadow-[0_0_25px_rgba(168,85,247,.22)]">
-            <Image
-                width={34}
-                height={34}
-                src={IEEE_CS_SOCIETY}
-                alt="BSMCE IEEE COMPUTER SOCIETY LOGO"
-                className=""
-            />
-          </div>
-          <div>
-            <div className="text-[13px] font-bold tracking-[-0.02em]">
-              BMSCE IEEE COMPUTER SOCIETY
-            </div>
-            <span className="mt-0.75 block font-mono text-[8px] uppercase tracking-[0.13em] text-cyan">
-              Cyber Month // 2026
-            </span>
-          </div>
-        </a>
-        <div className="hidden items-center gap-7.5 font-mono text-[10px] uppercase lg:flex">
-          <a
-            href="#about"
-            className="text-[#82918c] transition-colors hover:text-cyan"
-          >
-            Society
-          </a>
-          <a
-            href="#events"
-            className="text-[#82918c] transition-colors hover:text-cyan"
-          >
-            Events
-          </a>
-          <a
-            href="#hackathon"
-            className="text-[#82918c] transition-colors hover:text-cyan"
-          >
-            Hackathon
-          </a>
-          <a
-            href="#schools"
-            className="text-[#82918c] transition-colors hover:text-cyan"
-          >
-            Outreach
-          </a>
-          <a
-            href="#events"
-            className="border border-[rgba(56,217,255,0.5)] px-4.25 py-2.75 text-cyan shadow-[inset_0_0_20px_rgba(56,217,255,.04)] transition-all hover:bg-[rgba(56,217,255,.08)]"
-          >
-            Explore Cyber Month ↗
-          </a>
-        </div>
-      </nav>
+
       {/* =====================================================
           HERO
       ===================================================== */}
@@ -583,7 +533,7 @@ export default function CyberMonthPage() {
               </p>
               <p className="mt-5">
                 Cybersecurity isn't only about stopping hackers.
-                It's about understanding what you're protecting —
+                It's about understanding what you're protecting,
                 and knowing how easily it can disappear.
               </p>
               <div className="mt-8 border-l-2 border-purple pl-5 text-[20px] leading-[1.45] text-white">
@@ -628,7 +578,7 @@ export default function CyberMonthPage() {
               </p>
               <p className="mt-5">
                 During Cyber Month, we take that
-                curiosity beyond the classroom —
+                curiosity beyond the classroom,
                 creating experiences that teach,
                 challenge and inspire people to
                 think differently about technology.
@@ -720,8 +670,9 @@ export default function CyberMonthPage() {
               community outreach.
             </p>
           </div>
-          <div className="mt-[70px] border-t border-[rgba(56,217,255,.13)]">
-            {events.map((event) => (
+          <div className="mt-[70px]">
+            <EventsGrid timelineEvents={timelineEvents} />
+            {/* {events.map((event) => (
               <a
                 href="#"
                 key={event.number}
@@ -745,7 +696,7 @@ export default function CyberMonthPage() {
                   {event.date}
                 </div>
               </a>
-            ))}
+            ))} */}
           </div>
         </div>
       </section>
@@ -933,10 +884,10 @@ export default function CyberMonthPage() {
           </div>
           <div className="grid grid-cols-1 border-l border-t border-[rgba(56,217,255,.12)] sm:grid-cols-2 lg:grid-cols-4">
             {[
-              ["12+", "Events"],
-              ["08+", "Workshops"],
-              ["06+", "Schools"],
-              ["500+", "People Reached"],
+              ["17+", "Events"],
+              ["3+", "Schools"],
+              ["500+", "People Reaching"],
+              ["1", "Club"],
             ].map(([number, label]) => (
               <div
                 key={label}
@@ -986,13 +937,18 @@ export default function CyberMonthPage() {
       {/* =====================================================
           FOOTER
       ===================================================== */}
-      <footer className="flex flex-col justify-between gap-5 border-t border-[rgba(255,255,255,.06)] px-[5vw] py-7 font-mono text-[8px] uppercase text-[#45534e] sm:flex-row">
-        <span>
-          BMSCE IEEE COMPUTER SOCIETY // CYBER MONTH 2026
-        </span>
-        <span className="text-green">
-          SYSTEM STATUS: SECURE_
-        </span>
+      <footer className=" border-t border-[rgba(255,255,255,.06)] px-[5vw] py-7 w-full font-mono text-[8px] uppercase text-[#45534e] sm:flex-row">
+        <div className="flex justify-between gap-5 w-full">
+          <span className="w-fit">
+            BMSCE IEEE COMPUTER SOCIETY // CYBER MONTH 2026
+          </span>
+          <span className="text-green w-fit">
+            SYSTEM STATUS: SECURE_
+          </span>
+        </div>
+        <div className="text-white text-[10px]">
+          <span>© All Rights Reserved . 2026 . BMSCE IEEE COMPUTER SOCIETY</span>
+        </div>
       </footer>
     </main>
   );

@@ -1,3 +1,4 @@
+import EventPage from '@/components/events/EventsPage';
 import { detailedPublishedEventDataGET } from '@/lib/db';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -20,14 +21,7 @@ const page = async ({params} : PageProps): Promise<React.JSX.Element> => {
 
     console.log(eventsData);
     return (
-        <div>
-            <Image
-                src={eventsData.bannerLink.url}
-                width={200}
-                height={200}
-                alt="Event Banner"
-            />
-        </div>
+        <EventPage event={eventsData} />
     )
 }
 

@@ -3,21 +3,7 @@ import { imagekit } from "./imagekit";
 import { prisma } from "./prisma";
 import { slugify } from "@/func/stringFunc";
 import { Prisma } from "@/generated/prisma/browser";
-import { EventDSPFType, EventSchemaDDPLWithSlugWithID, EventSchemaDSPL, EventSchemaDSPLWithoutSlug, EventSchemaDSPLWithoutSlugOptional, EventSchemaForDBDSPF, FileMetaSchema, ImageUploadReturnType } from "@/func/zodEventSchema";
-
-
-const EventFromBDBriefSchema = z.object({
-    title: z.string(),
-    eventID: z.string(),
-    mode: z.enum(['Offline', 'Online', 'Mixed']),
-    eventType: z.enum(['Completed', 'OnGoing', 'Upcomming']),
-    startDate: z.date(),
-    endDate: z.date(),
-    bannerLink: FileMetaSchema,
-    eventSlug: z.string()
-})
-
-
+import { EventDSPFType, EventFromBDBriefSchema, EventSchemaDDPLWithSlugWithID, EventSchemaDSPL, EventSchemaDSPLWithoutSlug, EventSchemaDSPLWithoutSlugOptional, EventSchemaForDBDSPF, FileMetaSchema, ImageUploadReturnType } from "@/func/zodEventSchema";
 
 type PrismaClientOrTx = typeof prisma | Prisma.TransactionClient;
 
@@ -33,11 +19,13 @@ export const briefPublishedEventsDataGET = async () => {
             mode: true,
             bannerLink: true,
             startDate: true,
-            eventType: true,
+            endDate : true,
+            description : true,
+            location : true,
         }
     })
 
-    return z.array(EventFromBDBriefSchema).parse(rawData)
+    return EventFromBDBriefSchema.parse(rawData)
 }
 
 export const briefAllEventsDataGET = async () => {
@@ -49,10 +37,12 @@ export const briefAllEventsDataGET = async () => {
             mode: true,
             bannerLink: true,
             startDate: true,
-            eventType: true,
+            endDate : true,
+            description : true,
+            location : true
         }
     })
-    return z.array(EventFromBDBriefSchema).parse(rawData);
+    return EventFromBDBriefSchema.parse(rawData);
 }
 
 export const detailedPublishedEventDataGET = async (slug: string) => {

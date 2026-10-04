@@ -81,3 +81,17 @@ export const EventSchemaDDPLWithoutlug = EventSchemaDSPF.omit({eventPoster : tru
 export type EventTypeDDPLWithoutlug = z.infer<typeof EventSchemaDDPLWithoutlug>
 
 
+
+export const EventFromBDBriefSchema = z.array(z.object({
+    title: z.string(),
+    eventID: z.string(),
+    mode: z.enum(['Offline', 'Online', 'Mixed']),
+    startDate: z.date(),
+    endDate: z.date(),
+    bannerLink: FileMetaSchema,
+    eventSlug: z.string(),
+    description : z.string(),
+    location : z.string()
+}))
+
+export type EventFromBDBriefBreif = z.infer<typeof EventFromBDBriefSchema>
