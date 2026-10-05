@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     "Explore Cyber Month 2026 events, the event timeline, and more from BMSCE IEEE Computer Society.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children } : {children : React.JSX.Element}) {
   return (
     <html
       lang="en"
