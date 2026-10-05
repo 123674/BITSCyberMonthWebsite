@@ -1,20 +1,14 @@
 import Link from "next/link";
-import type { EventCardData } from "@/lib/eventCards";
-
-const STATUS_LABEL: Record<EventCardData["eventType"], string> = {
-  Upcomming: "Upcoming",
-  OnGoing: "Ongoing",
-  Completed: "Completed",
-};
+import type { EventFromBDBriefBreif } from "@/func/zodEventSchema";
 
 const IST = "Asia/Kolkata";
-const dayOf = (iso: string) => new Date(iso).toLocaleString("en-IN", { day: "2-digit", timeZone: IST });
-const monthOf = (iso: string) => new Date(iso).toLocaleString("en-IN", { month: "short", timeZone: IST }).toUpperCase();
-const timeOf = (iso: string) =>
-  new Date(iso).toLocaleString("en-IN", { weekday: "long", hour: "numeric", minute: "2-digit", timeZone: IST });
+const dayOf = (date: Date) => date.toLocaleString("en-IN", { day: "2-digit", timeZone: IST });
+const monthOf = (date: Date) => date.toLocaleString("en-IN", { month: "short", timeZone: IST }).toUpperCase();
+const timeOf = (date: Date) =>
+  date.toLocaleString("en-IN", { weekday: "long", hour: "numeric", minute: "2-digit", timeZone: IST });
 
-export default function EventTimeline({ events }: { events: EventCardData[] }) {
-  const sorted = [...events].sort((a, b) => a.startDate.localeCompare(b.startDate));
+export default function EventTimeline({ events }: { events: EventFromBDBriefBreif }) {
+  const sorted = [...events].sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
 
   return (
     <section id="timeline" className="tl-section">
@@ -219,7 +213,7 @@ export default function EventTimeline({ events }: { events: EventCardData[] }) {
       ) : (
         <ol className="tl-list">
           {sorted.map((event) => (
-            <li key={event.eventID} className={`tl-item reveal${event.eventType === "Completed" ? " is-past" : ""}`}>
+            <li key={event.eventID} className="tl-item reveal">
               <Link href={`/events/${event.eventSlug}`} className="tl-card">
                 <div className="tl-date" aria-hidden="true">
                   <span className="tl-day" suppressHydrationWarning>{dayOf(event.startDate)}</span>
@@ -229,7 +223,7 @@ export default function EventTimeline({ events }: { events: EventCardData[] }) {
                   <h3>{event.title}</h3>
                   <p className="tl-time" suppressHydrationWarning>{timeOf(event.startDate)}</p>
                   <div className="tl-tags">
-                    <span className={`tl-tag tl-tag-${event.eventType}`}>{STATUS_LABEL[event.eventType]}</span>
+                    <span className="tl-tag">MISSION {event.eventID.padStart(2, "0")}</span>
                     <span className="tl-tag">{event.mode}</span>
                   </div>
                 </div>

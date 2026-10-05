@@ -6,7 +6,6 @@ type EventsDataType = {
     title: string,
     eventID: string,
     mode: "Offline" | "Online" | "Mixed",
-    eventType: "Completed" | "OnGoing" | "Upcomming",
     startDate: Date,
     bannerLink: {
         fileId: string,

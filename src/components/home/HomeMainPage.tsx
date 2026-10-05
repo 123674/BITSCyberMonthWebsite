@@ -1,955 +1,242 @@
 "use client";
-import { IEEE_CS_SOCIETY } from "@/lib/contants";
-import Image from "next/image";
-import { useEffect, useRef } from "react";
+
+import { useEffect, useState } from "react";
+import type { EventFromBDBriefBreif } from "@/func/zodEventSchema";
 import EventsGrid from "./EventsGrid";
-import { EventFromBDBriefBreif } from "@/func/zodEventSchema";
-const binaryColumns = [
-  `0
-1
-1
-0
-1
-0
-1
-1
-0
-0
-1
-0
-1
-1
-0
-1
-0
-0
-1
-1
-0
-1
-0
-1
-1
-0
-0
-1
-1
-0
-1
-0`,
-  `1
-0
-0
-1
-1
-0
-1
-0
-0
-1
-0
-1
-1
-0
-0
-1
-1
-0
-1
-1
-0
-1
-0
-0
-1
-1
-0
-1
-0
-1`,
-  `0
-0
-1
-1
-0
-1
-0
-0
-1
-1
-1
-0
-1
-0
-1
-0
-0
-1
-1
-0
-1
-0
-0
-1
-1
-0
-1
-1
-0
-1`,
-  `1
-1
-0
-1
-0
-1
-1
-0
-0
-1
-1
-0
-1
-0
-0
-1
-0
-1
-1
-0
-1
-1
-0
-0
-1
-0
-1
-0
-1
-1`,
-  `0
-1
-0
-0
-1
-1
-0
-1
-0
-1
-1
-0
-1
-0
-0
-1
-1
-0
-1
-0
-1
-0
-1
-1
-0
-0
-1
-0
-1
-0`,
-  `1
-0
-1
-1
-0
-1
-0
-1
-0
-0
-1
-1
-0
-1
-1
-0
-0
-1
-0
-1
-0
-1
-1
-0
-1
-0
-0
-1
-1
-0`,
-  `0
-1
-1
-0
-1
-0
-0
-1
-1
-0
-1
-1
-0
-1
-0
-0
-1
-0
-1
-1
-0
-1
-0
-1
-1
-0
-0
-1
-0
-1`,
-];
-const events = [
-  {
-    number: "01",
-    title: "Cyber Awareness Workshop",
-    description:
-      "Understand your digital footprint, privacy and everyday security.",
-    type: "WORKSHOP",
-    date: "OCT 07",
-  },
-  {
-    number: "02",
-    title: "Capture The Flag",
-    description:
-      "Find vulnerabilities. Solve challenges. Capture the flag.",
-    type: "CTF // CYBER",
-    date: "OCT 11",
-  },
-  {
-    number: "03",
-    title: "Cybersecurity Masterclass",
-    description:
-      "Learn from people working in technology and security.",
-    type: "MASTERCLASS",
-    date: "OCT 15",
-  },
-  {
-    number: "04",
-    title: "Hack The Future",
-    description:
-      "Build technology that solves a problem worth solving.",
-    type: "HACKATHON",
-    date: "OCT 18",
-  },
-  {
-    number: "05",
-    title: "Cyber School Tour",
-    description:
-      "Taking digital safety and technology into classrooms.",
-    type: "OUTREACH",
-    date: "OCT 22",
-  },
-];
+import CyberIntro from "./CyberIntro";
+import CircuitBackground from "../CircuitBackground";
+
 const terminalMessages = [
-  "establishing secure connection...",
-  "checking challenge matrix...",
-  "scanning attack surface...",
-  "loading participants...",
+  "initializing event intelligence...",
+  "challenge matrix verified...",
+  "attack surface monitored...",
   "encryption layer active...",
-  "security protocols enabled...",
   "system ready_",
 ];
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mb-5.5 font-mono text-[10px] uppercase tracking-[0.16em] text-green">
-      {children}
-    </div>
-  );
+const missionFiles = [
+  ["01", "LEARN", "Understand security, privacy and the systems shaping our digital lives."],
+  ["02", "BUILD", "Turn curiosity into tools, projects and useful solutions."],
+  ["03", "CHALLENGE", "Test assumptions, find weaknesses and think differently."],
+  ["04", "TEACH", "Take digital safety beyond campus and into classrooms."],
+];
+
+function SectionMarker({ number, children }: { number: string; children: React.ReactNode }) {
+  return <div className="section-marker"><span>{number}</span><i />{children}</div>;
 }
-function Button({
-  children,
-  href,
-  primary = false,
+
+export default function HomeMainPage({
+  timelineEvents,
 }: {
-  children: React.ReactNode;
-  href: string;
-  primary?: boolean;
+  timelineEvents: EventFromBDBriefBreif;
 }) {
-  return (
-    <a
-      href={href}
-      className={[
-        "inline-flex items-center justify-center gap-2 px-[21px] py-[15px]",
-        "font-mono text-[10px] uppercase transition-all duration-300",
-        primary
-          ? [
-            "border border-green",
-            "bg-linear-to-r from-green to-green-bright",
-            "font-bold text-[#021009]",
-            "shadow-[0_0_25px_rgba(25,214,107,0.12)]",
-            "hover:-translate-y-0.5 hover:shadow-[0_0_35px_rgba(25,214,107,0.24)]",
-          ].join(" ")
-          : [
-            "border border-[rgba(56,217,255,0.35)]",
-            "text-cyan",
-            "hover:border-cyan hover:bg-[rgba(56,217,255,0.07)]",
-          ].join(" "),
-      ].join(" ")}
-    >
-      {children}
-    </a>
-  );
-}
-export default function CyberMonthPage({timelineEvents} : {timelineEvents : EventFromBDBriefBreif}) {
-  const cursorGlowRef = useRef<HTMLDivElement>(null);
-  const terminalRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!cursorGlowRef.current) return;
-      cursorGlowRef.current.style.left = `${event.clientX}px`;
-      cursorGlowRef.current.style.top = `${event.clientY}px`;
-    };
-    document.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, []);
+  const [showIntro, setShowIntro] = useState(true);
+  const [terminalLines, setTerminalLines] = useState(terminalMessages.slice(0, 3));
+
   useEffect(() => {
     const interval = window.setInterval(() => {
-      if (!terminalRef.current) return;
-      const message =
-        terminalMessages[
-        Math.floor(Math.random() * terminalMessages.length)
-        ];
-      const line = document.createElement("div");
-      line.innerHTML = `&gt; ${message}`;
-      terminalRef.current.appendChild(line);
-      while (terminalRef.current.children.length > 10) {
-        terminalRef.current.removeChild(
-          terminalRef.current.children[0]
-        );
-      }
-    }, 2300);
+      const message = terminalMessages[Math.floor(Math.random() * terminalMessages.length)];
+      setTerminalLines((lines) => [...lines.slice(-5), message]);
+    }, 2600);
     return () => window.clearInterval(interval);
   }, []);
-  return (
-    <main className="min-h-screen overflow-x-hidden bg-black text-white">
-      {/* =====================================================
-          GLOBAL EFFECTS
-      ===================================================== */}
-      <div
-        className="pointer-events-none fixed inset-0 -z-10 opacity-100"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(91,140,255,.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(91,140,255,.035) 1px, transparent 1px)
-          `,
-          backgroundSize: "80px 80px",
-          maskImage:
-            "linear-gradient(to bottom, black, transparent 80%)",
-        }}
-      />
-      <div className="pointer-events-none fixed inset-0 z-90 opacity-[0.035] bg-[url('data:image/svg+xml,%3Csvg_viewBox=%270_0_200_200%27_xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter_id=%27noise%27%3E%3CfeTurbulence_type=%27fractalNoise%27_baseFrequency=%27.9%27_numOctaves=%273%27_stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect_width=%27100%25%27_height=%27100%25%27_filter=%27url(%23noise)%27_opacity=%27.7%27/%3E%3C/svg%3E')]"
-      />
-      <div
-        ref={cursorGlowRef}
-        className="pointer-events-none fixed z-[-1] h-112.5 w-112.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(168,85,247,.07),rgba(56,217,255,.025)_35%,transparent_70%)]"
-      />
-      {/* =====================================================
-          NAVIGATION
-      ===================================================== */}
 
-      {/* =====================================================
-          HERO
-      ===================================================== */}
-      <section className="relative flex min-h-screen items-center overflow-hidden bg-[radial-gradient(circle_at_50%_15%,rgba(168,85,247,.16),transparent_32%),radial-gradient(circle_at_75%_70%,rgba(56,217,255,.07),transparent_28%),linear-gradient(180deg,#020408_0%,#030b08_100%)] px-[5vw] pb-[90px] pt-[150px]">
-        {/* Binary field */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-40">
-          {binaryColumns.map((column, index) => (
-            <div
-              key={index}
-              className="absolute top-[-20%] whitespace-pre font-mono text-[13px] leading-[1.7] text-[rgba(25,214,107,0.14)] animate-[binaryFall_20s_linear_infinite]"
-              style={{
-                left: `${[4, 13, 27, 42, 58, 73, 88][index]}%`,
-                animationDuration: `${[
-                  17, 23, 19, 25, 18, 24, 20,
-                ][index]}s`,
-                opacity:
-                  index === 1 || index === 3 ? 0.5 : 1,
-              }}
-            >
-              {column}
+  useEffect(() => {
+    const sections = document.querySelectorAll<HTMLElement>(
+      ".cyber-home .content-section, .cyber-home .impact-section, .cyber-home .final-section",
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("section-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.14, rootMargin: "0px 0px -8% 0px" },
+    );
+    sections.forEach((section) => {
+      section.classList.add("section-pending");
+      observer.observe(section);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="cyber-site">
+      {showIntro && <CyberIntro onComplete={() => setShowIntro(false)} />}
+      <CircuitBackground />
+      <div className="site-grid" aria-hidden="true" />
+      <div className="site-grain" aria-hidden="true" />
+
+      <main className="cyber-home">
+        <section id="hero" className="home-hero">
+          <div className="hero-orbit hero-orbit-outer" aria-hidden="true" />
+          <div className="hero-orbit hero-orbit-inner" aria-hidden="true" />
+          <svg className="hero-shield" viewBox="0 0 640 720" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="shield-stroke" x1="100" y1="80" x2="540" y2="650" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#00BFFF" stopOpacity=".78" />
+                <stop offset=".52" stopColor="#D6A84F" stopOpacity=".42" />
+                <stop offset="1" stopColor="#008CFF" stopOpacity=".48" />
+              </linearGradient>
+              <radialGradient id="shield-fill" cx="0" cy="0" r="1" gradientTransform="matrix(0 370 -320 0 320 40)" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#0873A5" stopOpacity=".12" />
+                <stop offset="1" stopColor="#030508" stopOpacity="0" />
+              </radialGradient>
+              <linearGradient id="shield-scan-gradient" x1="0" y1="0" x2="1" y2="0">
+                <stop stopColor="#00BFFF" stopOpacity="0" />
+                <stop offset=".5" stopColor="#00D9FF" stopOpacity=".68" />
+                <stop offset="1" stopColor="#F0C96A" stopOpacity="0" />
+              </linearGradient>
+              <clipPath id="shield-clip">
+                <path d="M320 48 524 125v184c0 163-91 286-204 357C207 595 116 472 116 309V125L320 48Z" />
+              </clipPath>
+            </defs>
+            <g className="shield-radial-system">
+              <circle cx="320" cy="350" r="292" stroke="#00BFFF" strokeOpacity=".13" />
+              <circle cx="320" cy="350" r="270" stroke="#D6A84F" strokeOpacity=".14" strokeDasharray="2 12" />
+              <circle cx="320" cy="350" r="238" stroke="#00BFFF" strokeOpacity=".13" strokeDasharray="88 14 4 14" />
+              <path d="M320 42v35M320 623v45M80 350h42M518 350h42M151 181l29 29m280 280 29 29m0-338-29 29m-280 280-29 29" stroke="#D6A84F" strokeOpacity=".32" />
+            </g>
+            <path d="M320 48 524 125v184c0 163-91 286-204 357C207 595 116 472 116 309V125L320 48Z" fill="url(#shield-fill)" stroke="url(#shield-stroke)" strokeWidth="1.5" />
+            <path d="M320 83 492 148v160c0 137-73 239-172 305-99-66-172-168-172-305V148l172-65Z" stroke="#00BFFF" strokeOpacity=".3" strokeWidth=".8" />
+            <g clipPath="url(#shield-clip)" stroke="#00BFFF" strokeOpacity=".29" strokeWidth="1">
+              <path d="M128 214h80l28 28h65m211-16h-82l-36 36h-45M116 408h117l38-38h48m205 60H408l-38-38h-55M177 515h72l32-32h39m143 57h-72l-32-32h-39" />
+              <path d="M208 242v-38m304 204h-38m-312 67h39m215-197v-52m-138 272h-45m177 95v-58" stroke="#D6A84F" strokeOpacity=".4" />
+              <circle cx="208" cy="204" r="3" fill="#D6A84F" stroke="none" />
+              <circle cx="474" cy="452" r="3" fill="#00BFFF" stroke="none" />
+              <circle cx="233" cy="475" r="2.5" fill="#00BFFF" stroke="none" />
+              <circle cx="370" cy="307" r="2.5" fill="#D6A84F" stroke="none" />
+            </g>
+            <g className="shield-scan">
+              <path d="M148 330h344" stroke="url(#shield-scan-gradient)" strokeWidth="2" />
+              <path d="M200 334h240" stroke="#00D9FF" strokeOpacity=".12" strokeWidth="8" />
+            </g>
+            <path d="M320 245 384 270v59c0 49-27 87-64 112-37-25-64-63-64-112v-59l64-25Z" stroke="#D6A84F" strokeOpacity=".55" strokeWidth="1.5" />
+            <path d="m294 328 18 18 36-40" stroke="#00D9FF" strokeOpacity=".72" strokeWidth="2" />
+            <g fill="#9BB7C4" fillOpacity=".55" fontFamily="monospace" fontSize="8" letterSpacing="1.4">
+              <text x="99" y="350" transform="rotate(-90 99 350)">DEFENSE GRID / 01</text>
+              <text x="446" y="581">INTEGRITY 99.8</text>
+              <text x="380" y="110">NODE / ACTIVE</text>
+              <text x="175" y="607">BMSCE // CS SOCIETY</text>
+            </g>
+          </svg>
+          <div className="hero-content">
+            <div className="eyebrow"><span className="signal-dot" />BMSCE IEEE COMPUTER SOCIETY <span className="eyebrow-divider">/</span> 2026</div>
+            <div className={`title-hologram${showIntro ? "" : " title-settled"}`}>
+              <h1 className="home-title title-face title-face-front"><span>CYBER</span><span className="title-accent">MONTH</span></h1>
+              <div className="home-title title-face title-face-back" aria-hidden="true"><span>CYBER</span><span className="title-accent">MONTH</span></div>
             </div>
-          ))}
-        </div>
-        {/* Moving scan */}
-        <div className="pointer-events-none absolute inset-0 animate-[scan_7s_linear_infinite] bg-[linear-gradient(90deg,transparent,rgba(25,214,107,.025),transparent)]" />
-        <div className="relative z-10 mx-auto w-full max-w-312.5">
-          <div className="mb-6.75 flex items-center gap-[10px] font-mono text-[10px] uppercase tracking-[0.18em] text-cyan">
-            <span className="h-[7px] w-[7px] animate-pulse rounded-full bg-green-bright shadow-[0_0_15px_#19d66b]" />
-            BMSCE IEEE COMPUTER SOCIETY PRESENTS
-          </div>
-          <h1 className="max-w-[1100px] text-[clamp(70px,12vw,165px)] font-black uppercase leading-[0.8] tracking-[-0.09em]">
-            <span className="block bg-linear-to-r font-bold text-[171.89px] from-purple via-purple-bright via-68% to-cyan bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,.14)]">
-              CYBER
-            </span>
-            <span className="block bg-linear-to-r font-bold text-[171.89px] from-purple via-purple-bright via-68% to-cyan bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(168,85,247,.14)]">
-              MONTH
-            </span>
-          </h1>
-          <div className="mt-7.5 font-mono text-[13px] font-semibold tracking-[0.08em] text-blue">
-            LEARN. SECURE. INNOVATE. DEFEND.
-          </div>
-          <p className="mt-[45px] max-w-[570px] text-[15px] leading-[1.8] text-[#9aa8a3]">
-            Technology connects us to everything.
-            But every connection creates a risk.
-            <strong className="text-white">
-              {" "}Cyber Month 2026
-            </strong>
-            {" "}brings together workshops, flagship events,
-            hackathons and school outreach to build
-            a safer digital future.
-          </p>
-          <div className="mt-[35px] flex flex-col gap-3 sm:flex-row">
-            <Button href="#events" primary>
-              Explore Events ↗
-            </Button>
-            <Button href="#about">
-              Meet BMSCE IEEE Society
-            </Button>
-          </div>
-        </div>
-        {/* HUD */}
-        <div className="absolute bottom-[12%] right-[6vw] hidden w-[310px] rotate-2 border border-[rgba(25,214,107,.18)] bg-[rgba(2,8,6,.72)] p-[18px] font-mono text-[9px] text-[#59736a] backdrop-blur-[10px] lg:block">
-          <div className="mb-[10px] flex justify-between border-b border-[rgba(25,214,107,.12)] pb-3 text-green">
-            <span>CYBER_MONITOR</span>
-            <span>● ONLINE</span>
-          </div>
-          {[
-            ["NETWORK", "CONNECTED", false],
-            ["IDENTITIES", "SCANNING", false],
-            ["THREAT LEVEL", "ELEVATED", true],
-            ["ENCRYPTION", "ACTIVE", false],
-            ["CYBER MONTH", "ONLINE", false],
-          ].map(([label, value, warning]) => (
-            <div
-              key={label as string}
-              className="flex justify-between py-[7px]"
-            >
-              <span>{label}</span>
-              <span
-                className={
-                  warning
-                    ? "text-[#ff4d5e]"
-                    : "text-cyan"
-                }
-              >
-                {value}
-              </span>
+            <p className="hero-lede">A month of cybersecurity, technology, challenges and learning.</p>
+            <div className="hero-actions">
+              <a className="cyber-button cyber-button-primary" href="#events">EXPLORE EVENTS <span aria-hidden="true">→</span></a>
+              <a className="cyber-text-link" href="#about">MEET THE SOCIETY <span aria-hidden="true">↘</span></a>
             </div>
-          ))}
-        </div>
-      </section>
-      {/* =====================================================
-          THREAT
-      ===================================================== */}
-      <section className="relative border-t border-[rgba(25,214,107,.12)] bg-linear-to-b from-[#030b08] to-black px-[5vw] py-[135px]">
-        <div className="mx-auto w-full max-w-[1200px]">
-          <SectionLabel>
-            01 // YOUR DIGITAL IDENTITY
-          </SectionLabel>
-          <h1 className="max-w-[950px] text-[clamp(45px,7vw,88px)] font-normal leading-[0.91] tracking-[-0.075em]">
-            Your name.
-            Your email.
-            Your location.
-            <br />
-            Your{" "}
-            <span className="bg-linear-to-r from-purple to-blue bg-clip-text text-transparent">
-              digital life.
-            </span>
-          </h1>
-          <div className="mt-[80px] grid grid-cols-1 items-center gap-[70px] lg:grid-cols-2">
-            {/* Identity card */}
-            <div className="relative min-h-[390px] overflow-hidden border border-[rgba(25,214,107,.18)] bg-linear-to-br from-[rgba(7,28,19,.9)] to-[rgba(2,8,6,.95)] p-7 shadow-[inset_0_0_60px_rgba(25,214,107,.025)]">
-              <div className="mb-0 flex justify-between border-b border-[rgba(25,214,107,.12)] pb-[18px] font-mono text-[9px] text-green">
-                <span>
-                  DIGITAL_IDENTITY // RECORD_8F31
-                </span>
-                <span className="text-[#ff4d5e]">
-                  ● EXPOSED
-                </span>
+          </div>
+          <div className="hero-coordinate" aria-hidden="true"><span>INTELLIGENCE NETWORK</span><b>ACTIVE</b><span>12.9716° N / 77.5946° E</span></div>
+          <a href="#identity" className="scroll-cue"><span />SCROLL TO EXPLORE</a>
+        </section>
+
+        <section id="identity" className="content-section identity-section">
+          <div className="section-wrap">
+            <SectionMarker number="01">DIGITAL IDENTITY</SectionMarker>
+            <div className="identity-layout">
+              <div>
+                <h2 className="display-heading">Your data is<br />your <span>digital self.</span></h2>
+                <p className="body-copy identity-copy">Every click leaves a trace. Every account creates a footprint. Cybersecurity begins with understanding what is at risk, and what is worth protecting.</p>
+                <a className="inline-link" href="#about">KNOW YOUR EXPOSURE <span aria-hidden="true">→</span></a>
               </div>
-              {[
-                ["NAME", "XXXX XXXX"],
-                ["EMAIL", "XXXX@XXXX"],
-                ["PHONE", "+xx XXXXXXXX"],
-                ["LOCATION", "XXXXXXXX"],
-                ["PASSWORD", "●●●●●●●●●●"],
-              ].map(([key, value], index) => (
-                <div
-                  key={key}
-                  className="grid grid-cols-[105px_1fr] border-b border-[rgba(255,255,255,.045)] py-4 font-mono text-[10px]"
-                >
-                  <span className="text-[#4e635a]">
-                    {key}
-                  </span>
-                  <span
-                    className={
-                      index === 4
-                        ? "text-[#8da49b]"
-                        : "tracking-[0.12em] text-purple-bright"
-                    }
-                  >
-                    {value}
-                  </span>
-                </div>
+              <div className="identity-file">
+                <div className="file-topline"><span>IDENTITY_RECORD / 08F31</span><span className="risk-status"><i />EXPOSED</span></div>
+                <div className="file-name">CLASSIFIED PROFILE <span>LEVEL 03</span></div>
+                {[ ["NAME", "████ ██████"], ["EMAIL", "u••••@secure.net"], ["LOCATION", "BENGALURU / IN"], ["CREDENTIALS", "ENCRYPTED // VERIFIED"] ].map(([key, value]) => (
+                  <div className="file-row" key={key}><span>{key}</span><strong>{value}</strong></div>
+                ))}
+                <div className="file-stamp">DIGITAL FOOTPRINT / UNDER REVIEW</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="about" className="content-section society-section">
+          <div className="section-wrap">
+            <SectionMarker number="02">THE SOCIETY</SectionMarker>
+            <div className="society-intro">
+              <h2 className="display-heading">WE DON&apos;T JUST<br /><span>USE TECHNOLOGY.</span></h2>
+              <div className="body-copy society-copy">
+                <p><strong>BMSCE IEEE Computer Society</strong> is a community of students, creators and technology enthusiasts exploring the future of computing.</p>
+                <p>Cyber Month takes that curiosity beyond the classroom through experiences that teach, challenge and inspire.</p>
+              </div>
+            </div>
+            <div className="mission-grid">
+              {missionFiles.map(([number, title, description]) => (
+                <article className="mission-file" key={number}>
+                  <div className="mission-code">FILE / {number}</div>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                  <span className="mission-corner" aria-hidden="true" />
+                </article>
               ))}
-              <div className="grid grid-cols-[105px_1fr] py-4 font-mono text-[10px]">
-                <span className="text-[#4e635a]">
-                  STATUS
-                </span>
-                <span className="text-[#ff4d5e]">
-                  COMPROMISED
-                </span>
-              </div>
-            </div>
-            {/* Threat copy */}
-            <div className="text-[15px] leading-[1.9] text-[#8a9993]">
-              <p>
-                Every click leaves a trace.
-                Every account creates a digital footprint.
-                Every piece of information you share becomes
-                part of your digital identity.
-              </p>
-              <p className="mt-5">
-                Cybersecurity isn't only about stopping hackers.
-                It's about understanding what you're protecting,
-                and knowing how easily it can disappear.
-              </p>
-              <div className="mt-8 border-l-2 border-purple pl-5 text-[20px] leading-[1.45] text-white">
-                The first step to staying secure is{" "}
-                <span className="text-cyan">
-                  knowing what is at risk.
-                </span>
-              </div>
             </div>
           </div>
-        </div>
-      </section>
-      {/* =====================================================
-          ABOUT
-      ===================================================== */}
-      <section
-        id="about"
-        className="border-y border-[rgba(56,217,255,.08)] bg-[radial-gradient(circle_at_20%_50%,rgba(168,85,247,.07),transparent_30%),#03070a] px-[5vw] py-[135px]"
-      >
-        <div className="mx-auto w-full max-w-[1200px]">
-          <div className="grid grid-cols-1 items-end gap-[55px] lg:grid-cols-[1.1fr_.9fr] lg:gap-[100px]">
-            <div>
-              <SectionLabel>
-                02 // THE SOCIETY
-              </SectionLabel>
-              <h1 className="text-[clamp(55px,7vw,100px)] leading-[0.86] tracking-[-0.08em]">
-                We don't just
-                <span className="block bg-linear-to-r from-purple via-blue to-cyan bg-clip-text text-transparent">
-                  use technology.
-                </span>
-              </h1>
+        </section>
+
+        <section id="events" className="content-section events-section">
+          <div className="section-wrap">
+            <div className="events-heading">
+              <div><SectionMarker number="03">EVENT INTELLIGENCE</SectionMarker><h2 className="display-heading">MISSIONS<br /><span>IN MOTION.</span></h2></div>
+              <p className="body-copy">Workshops, cyber challenges, technical talks, competitions and outreach. Select a mission to open its full briefing.</p>
             </div>
-            <div className="text-[15px] leading-[1.85] text-[#8a9994]">
-              <p>
-                <strong className="text-white">
-                  BMSCE IEEE Computer Society
-                </strong>{" "}
-                is a community of students,
-                creators, builders and technology
-                enthusiasts exploring the future
-                of computing.
-              </p>
-              <p className="mt-5">
-                During Cyber Month, we take that
-                curiosity beyond the classroom,
-                creating experiences that teach,
-                challenge and inspire people to
-                think differently about technology.
-              </p>
-            </div>
-          </div>
-          {/* Mission grid */}
-          <div className="mt-[65px] grid grid-cols-1 border border-[rgba(56,217,255,.10)] sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                number: "01",
-                title: "LEARN",
-                description:
-                  "Understand cybersecurity, privacy and the technology behind modern threats.",
-              },
-              {
-                number: "02",
-                title: "BUILD",
-                description:
-                  "Turn ideas into tools, projects and solutions.",
-              },
-              {
-                number: "03",
-                title: "CHALLENGE",
-                description:
-                  "Solve problems, find vulnerabilities and think differently.",
-              },
-              {
-                number: "04",
-                title: "TEACH",
-                description:
-                  "Take digital awareness beyond campus and into schools.",
-              },
-            ].map((mission, index) => (
-              <div
-                key={mission.number}
-                className={[
-                  "min-h-[180px] border-b border-[rgba(56,217,255,.10)] bg-[rgba(255,255,255,.012)] p-[25px] transition-colors hover:bg-[rgba(168,85,247,.045)]",
-                  index !== 3
-                    ? "lg:border-r"
-                    : "",
-                  index % 2 === 0
-                    ? "sm:border-r"
-                    : "",
-                  index === 2
-                    ? "sm:border-r-0 lg:border-r"
-                    : "",
-                  index === 1
-                    ? "lg:border-r"
-                    : "",
-                ].join(" ")}
-              >
-                <div className="font-mono text-[10px] text-cyan">
-                  {mission.number} //
-                </div>
-                <h3 className="mt-10 text-[18px]">
-                  {mission.title}
-                </h3>
-                <p className="mt-2 text-2.75 leading-[1.7] text-[#586761]">
-                  {mission.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* =====================================================
-          EVENTS
-      ===================================================== */}
-      <section
-        id="events"
-        className="bg-black px-[5vw] py-[135px]"
-      >
-        <div className="mx-auto w-full max-w-[1200px]">
-          <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
-            <div>
-              <SectionLabel>
-                03 // CYBER MONTH
-              </SectionLabel>
-              <h1 className="text-[clamp(50px,7vw,90px)] leading-[0.86] tracking-[-0.08em]">
-                One month.
-                <br />
-                Many missions.
-              </h1>
-            </div>
-            <p className="max-w-[360px] text-[13px] leading-[1.8] text-[#71817b]">
-              Workshops, cybersecurity challenges,
-              technical talks, competitions and
-              community outreach.
-            </p>
-          </div>
-          <div className="mt-[70px]">
+            <div className="archive-status"><span>LIVE ARCHIVE</span><span>{String(timelineEvents.length).padStart(2, "0")} RECORDS</span><span>ACCESS LEVEL / PUBLIC</span></div>
             <EventsGrid timelineEvents={timelineEvents} />
-            {/* {events.map((event) => (
-              <a
-                href="#"
-                key={event.number}
-                className="group grid grid-cols-[45px_1fr] gap-[25px] border-b border-[rgba(255,255,255,.07)] py-[29px] transition-all duration-300 hover:pl-5 hover:bg-linear-to-r hover:from-[rgba(168,85,247,.05)] hover:to-transparent lg:grid-cols-[60px_1fr_180px_100px]"
-              >
-                <div className="font-mono text-[10px] text-[#41514c] transition-colors group-hover:text-purple-bright">
-                  {event.number}
-                </div>
-                <div>
-                  <h3 className="text-[18px] tracking-[-0.025em]">
-                    {event.title}
-                  </h3>
-                  <p className="mt-[6px] text-2.75 text-[#56635f]">
-                    {event.description}
-                  </p>
-                </div>
-                <div className="hidden font-mono text-[9px] uppercase text-cyan lg:block">
-                  {event.type}
-                </div>
-                <div className="hidden text-right font-mono text-[9px] text-green lg:block">
-                  {event.date}
-                </div>
-              </a>
-            ))} */}
           </div>
-        </div>
-      </section>
-      {/* =====================================================
-          HACKATHON
-      ===================================================== */}
-      <section
-        id="hackathon"
-        className="relative overflow-hidden border-y border-[rgba(168,85,247,.15)] bg-[radial-gradient(circle_at_75%_30%,rgba(168,85,247,.16),transparent_28%),radial-gradient(circle_at_30%_80%,rgba(25,214,107,.08),transparent_30%),#04060b] px-[5vw] py-[135px]"
-      >
-        <div className="mx-auto w-full max-w-[1200px]">
-          <div className="grid grid-cols-1 items-center gap-[55px] lg:grid-cols-[1.2fr_.8fr] lg:gap-[80px]">
-            <div>
-              <SectionLabel>
-                04 // MAIN EVENT
-              </SectionLabel>
-              <h1 className="text-[clamp(65px,9vw,135px)] leading-[0.77] tracking-[-0.09em]">
-                BUILD.
-                <br />
-                BREAK.
-                <br />
-                <span className="bg-linear-to-r from-purple via-purple-bright to-cyan bg-clip-text text-transparent">
-                  DEFEND.
-                </span>
-              </h1>
-            </div>
-            <div>
-              <div className="text-[14px] leading-[1.85] text-[#7e8b87]">
-                <p>
-                  <strong className="text-white">
-                    Cyber Month Hackathon
-                  </strong>{" "}
-                  is where ideas meet pressure.
-                </p>
-                <p className="mt-5">
-                  Find a problem.
-                  Build something useful.
-                  Work with a team.
-                  Defend your idea.
-                </p>
-              </div>
-              {/* Terminal */}
-              <div className="mt-[35px] border border-[rgba(25,214,107,.18)] bg-[#010403] shadow-[0_0_50px_rgba(25,214,107,.03)]">
-                <div className="flex items-center gap-[6px] border-b border-[rgba(255,255,255,.06)] p-3">
-                  <div className="h-[7px] w-[7px] rounded-full bg-[#26312d]" />
-                  <div className="h-[7px] w-[7px] rounded-full bg-[#26312d]" />
-                  <div className="h-[7px] w-[7px] rounded-full bg-[#26312d]" />
-                  <div className="ml-auto font-mono text-[8px] text-[#3e5049]">
-                    cyber@bmsce ieee:~
-                  </div>
-                </div>
-                <div
-                  ref={terminalRef}
-                  className="p-[22px] font-mono text-[10px] leading-[2] text-[#52645b]"
-                >
-                  <div>
-                    <span className="text-green">
-                      root@cybermonth
-                    </span>
-                    :~$ ./initialize
-                  </div>
-                  <div>
-                    &gt; loading challenge matrix...
-                  </div>
-                  <div>
-                    &gt; scanning attack surface...
-                  </div>
-                  <div>
-                    &gt; participants connected...
-                  </div>
-                  <div>
-                    &gt; encryption:
-                    <span className="text-cyan">
-                      {" "}ACTIVE
-                    </span>
-                  </div>
-                  <div>
-                    &gt; threat detection:
-                    <span className="text-purple-bright">
-                      {" "}ONLINE
-                    </span>
-                  </div>
-                  <div>
-                    &gt;{" "}
-                    <span className="text-green">
-                      SYSTEM READY_
-                    </span>
-                  </div>
+        </section>
+
+        <section id="hackathon" className="content-section main-event-section">
+          <div className="section-wrap main-event-layout">
+            <div><SectionMarker number="04">FLAGSHIP / HACKATHON</SectionMarker><h2 className="display-heading event-mantra">BUILD.<br />BREAK.<br /><span>DEFEND.</span></h2></div>
+            <div className="main-event-copy">
+              <p className="body-copy"><strong>Cyber Month Hackathon</strong> is where ideas meet pressure. Find a problem, build something useful, work with a team and defend your idea.</p>
+              <div className="terminal-panel">
+                <div className="terminal-heading"><span className="terminal-lights"><i /><i /><i /></span><span>CYBER-MONTH / ROOT TERMINAL</span><span>SECURE</span></div>
+                <div className="terminal-body">
+                  <div><span className="terminal-prompt">root@cybermonth</span>:~$ initialize --secure</div>
+                  {terminalLines.map((line, index) => <div key={`${line}-${index}`}>&gt; {line}</div>)}
+                  <div>&gt; cryptographic layer: <b>ACTIVE</b></div>
+                  <div className="terminal-ready">&gt; SYSTEM READY<span className="terminal-cursor">_</span></div>
                 </div>
               </div>
-              {/* Stats */}
-              <div className="mt-px grid grid-cols-2 border border-[rgba(25,214,107,.12)]">
-                <div className="border-r border-[rgba(25,214,107,.12)] bg-[rgba(25,214,107,.02)] p-[25px]">
-                  <strong className="block font-mono text-6.75 text-green">
-                    24H
-                  </strong>
-                  <span className="mt-[6px] block font-mono text-[8px] uppercase text-[#4c5b55]">
-                    Build Window
-                  </span>
-                </div>
-                <div className="bg-[rgba(25,214,107,.02)] p-[25px]">
-                  <strong className="block font-mono text-6.75 text-green">
-                    ∞
-                  </strong>
-                  <span className="mt-[6px] block font-mono text-[8px] uppercase text-[#4c5b55]">
-                    Possibilities
-                  </span>
-                </div>
-              </div>
+              <div className="event-specs"><div><strong>24H</strong><span>BUILD WINDOW</span></div><div><strong>∞</strong><span>WAYS TO SOLVE</span></div></div>
             </div>
           </div>
-        </div>
-      </section>
-      {/* =====================================================
-          SCHOOL OUTREACH
-      ===================================================== */}
-      <section
-        id="schools"
-        className="bg-linear-to-b from-black to-[#03110b] px-[5vw] py-[135px]"
-      >
-        <div className="mx-auto w-full max-w-[1200px]">
-          <div className="grid grid-cols-1 items-center gap-[55px] lg:grid-cols-[.9fr_1.1fr] lg:gap-[100px]">
-            <div>
-              <SectionLabel>
-                05 // BEYOND CAMPUS
-              </SectionLabel>
-              <h1 className="text-[clamp(55px,7vw,95px)] leading-[0.84] tracking-[-0.08em]">
-                Start
-                <br />
-                <span className="bg-linear-to-r from-purple to-blue bg-clip-text text-transparent">
-                  early.
-                </span>
-                <br />
-                Stay safe.
-              </h1>
-            </div>
-            <div>
-              <div className="text-[15px] leading-[1.9] text-[#82908b]">
-                <p>
-                  Cybersecurity shouldn't begin
-                  after someone gets hacked.
-                </p>
-                <p className="mt-5">
-                  During Cyber Month, BMSCE IEEE Computer
-                  Society takes technology and digital
-                  safety into schools — helping
-                  students understand passwords,
-                  phishing, privacy, digital footprints,
-                  AI and the digital world around them.
-                </p>
-              </div>
-              <div className="mt-[35px] border-l-2 border-cyan bg-[rgba(56,217,255,.025)] px-[25px] py-[22px] font-mono text-[10px] leading-[2] text-[#52655e]">
-                <div>
-                  <strong className="text-green">
-                    OUTREACH_PROTOCOL
-                  </strong>
-                </div>
-                <div>
-                  &gt; CONNECTING_TO_CLASSROOM...
-                </div>
-                <div>
-                  &gt; DIGITAL_SAFETY_MODULE: LOADED
-                </div>
-                <div>
-                  &gt; KNOWLEDGE_TRANSFER: ACTIVE
-                </div>
-                <div>
-                  &gt; STATUS:{" "}
-                  <strong className="text-green">
-                    MISSION_ACCEPTED
-                  </strong>
-                </div>
-              </div>
+        </section>
+
+        <section id="schools" className="content-section outreach-section">
+          <div className="section-wrap outreach-layout">
+            <div><SectionMarker number="05">BEYOND CAMPUS</SectionMarker><h2 className="display-heading outreach-heading">START<br /><span>EARLY.</span><br />STAY SAFE.</h2></div>
+            <div><p className="body-copy">Cybersecurity shouldn&apos;t begin after someone gets hacked. We take digital safety into classrooms, helping students understand passwords, phishing, privacy, AI and the digital world around them.</p>
+              <div className="mission-log"><div>OUTREACH_PROTOCOL <span>/ MISSION LOG</span></div><p>&gt; CONNECTING_TO_CLASSROOM...</p><p>&gt; DIGITAL_SAFETY_MODULE: LOADED</p><p>&gt; KNOWLEDGE_TRANSFER: ACTIVE</p><p>&gt; STATUS: <strong>MISSION_ACCEPTED</strong></p></div>
             </div>
           </div>
-        </div>
-      </section>
-      {/* =====================================================
-          IMPACT
-      ===================================================== */}
-      <section className="border-t border-[rgba(56,217,255,.08)] bg-black px-[5vw] py-[135px]">
-        <div className="mx-auto w-full max-w-[1200px]">
-          <div className="mb-[45px] font-mono text-[9px] uppercase tracking-[0.17em] text-purple-bright">
-            06 // THE SIGNAL
-          </div>
-          <div className="grid grid-cols-1 border-l border-t border-[rgba(56,217,255,.12)] sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["17+", "Events"],
-              ["3+", "Schools"],
-              ["500+", "People Reaching"],
-              ["1", "Club"],
-            ].map(([number, label]) => (
-              <div
-                key={label}
-                className="border-b border-r border-[rgba(56,217,255,.12)] p-[45px_30px]"
-              >
-                <strong className="block bg-linear-to-r from-purple via-blue to-cyan bg-clip-text text-[clamp(42px,5vw,72px)] leading-none tracking-[-0.08em] text-transparent">
-                  {number}
-                </strong>
-                <span className="mt-[13px] block font-mono text-[8px] uppercase text-[#52615c]">
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* =====================================================
-          FINAL CTA
-      ===================================================== */}
-      <section className="relative flex min-h-[75vh] items-center overflow-hidden bg-[radial-gradient(circle,rgba(168,85,247,.12),transparent_42%),#020408] px-[5vw] py-[135px] text-center">
-        {/* Orbits */}
-        <div className="absolute left-1/2 top-1/2 h-[750px] w-[750px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(168,85,247,.08)]">
-          <div className="absolute inset-[80px] rounded-full border border-dashed border-[rgba(56,217,255,.09)]" />
-          <div className="absolute inset-[200px] rounded-full border border-[rgba(25,214,107,.09)]" />
-        </div>
-        <div className="relative z-10 w-full">
-          <div className="mb-[25px] font-mono text-[9px] uppercase tracking-[0.18em] text-cyan">
-            SYSTEM // AWAITING USER
-          </div>
-          <h1 className="text-[clamp(65px,12vw,170px)] leading-[0.78] tracking-[-0.095em]">
-            ENTER
-            <br />
-            <span className="bg-linear-to-r from-purple via-purple-bright to-cyan bg-clip-text text-transparent">
-              THE GRID.
-            </span>
-          </h1>
-          <p className="mx-auto my-[35px] max-w-[520px] text-[14px] leading-[1.8] text-[#75847e]">
-            Learn something new.
-            Build something meaningful.
-            Protect something important.
-          </p>
-          <Button href="#events" primary>
-            Enter Cyber Month ↗
-          </Button>
-        </div>
-      </section>
-      {/* =====================================================
-          FOOTER
-      ===================================================== */}
-      <footer className=" border-t border-[rgba(255,255,255,.06)] px-[5vw] py-7 w-full font-mono text-[8px] uppercase text-[#45534e] sm:flex-row">
-        <div className="flex justify-between gap-5 w-full">
-          <span className="w-fit">
-            BMSCE IEEE COMPUTER SOCIETY // CYBER MONTH 2026
-          </span>
-          <span className="text-green w-fit">
-            SYSTEM STATUS: SECURE_
-          </span>
-        </div>
-        <div className="text-white text-[10px]">
-          <span>© All Rights Reserved . 2026 . BMSCE IEEE COMPUTER SOCIETY</span>
-        </div>
-      </footer>
-    </main>
+        </section>
+
+        <section className="impact-section">
+          <div className="section-wrap"><SectionMarker number="06">THE SIGNAL</SectionMarker><div className="impact-grid">
+            {[["17+", "EVENTS"], ["3+", "SCHOOLS"], ["500+", "PEOPLE REACHED"], ["01", "COMMUNITY"]].map(([value, label]) => <div className="impact-stat" key={label}><strong>{value}</strong><span>{label}</span></div>)}
+          </div></div>
+        </section>
+
+        <section id="contact" className="final-section">
+          <div className="final-rings" aria-hidden="true" />
+          <SectionMarker number="07">CONNECTION OPEN</SectionMarker>
+          <h2>ENTER THE<br /><span>CYBER GRID.</span></h2>
+          <p>Learn something new. Build something meaningful. Protect something important.</p>
+          <a className="cyber-button cyber-button-primary" href="#events">ENTER CYBER MONTH <span aria-hidden="true">→</span></a>
+        </section>
+      </main>
+
+      <footer className="cyber-footer"><a href="#hero">BMSCE IEEE COMPUTER SOCIETY</a><span>CYBER MONTH / 2026</span><span className="footer-status"><i /> NETWORK ONLINE</span></footer>
+    </div>
   );
 }
