@@ -1,0 +1,62 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  /* Above the page sections and header (z 30), below the cursor/dialogs (z 50) and the intro. */
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  overflow: hidden;
+}
+
+/* Darkens the page around the cursor; sits just under the glowing layer. */
+.shade {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  pointer-events: none;
+  background: radial-gradient(circle 320px at var(--x, -999px) var(--y, -999px), rgba(0, 0, 0, .5), rgba(0, 0, 0, .28) 45%, transparent 100%);
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+
+.shade[data-active="true"] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .shade {
+    display: none;
+  }
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Faint scan line sweeping down the screen. */
+.scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 140px;
+  background: linear-gradient(180deg, transparent, rgba(177, 77, 255, .06) 70%, rgba(31, 182, 255, .12) 98%, transparent);
+  transform: translateY(-160px);
+  animation: scan 11s cubic-bezier(.45, 0, .55, 1) 2s infinite;
+}
+
+@keyframes scan {
+  0% { transform: translateY(-160px); opacity: 0; }
+  8% { opacity: 1; }
+  70% { opacity: 1; }
+  80%, 100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scan {
+    display: none;
+  }
+}

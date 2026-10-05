@@ -78,8 +78,8 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
 
     return (
         <main className="min-h-screen bg-black py-16 text-white">
-            <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(50,255,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(50,255,136,0.05)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_30%,transparent_75%)]" />
-            <Form action={() => { }} className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-8 rounded-xl border border-border-green bg-black-2/80 p-8 shadow-[0_0_60px_rgba(50,255,136,0.1)] backdrop-blur-md">
+            <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(177,77,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(177,77,255,0.05)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_30%,transparent_75%)]" />
+            <Form action={() => { }} className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-8 rounded-xl border border-border-green bg-black-2/80 p-8 shadow-[0_0_60px_rgba(177,77,255,0.1)] backdrop-blur-md">
                 <header>
                     <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-cyan">{"// edit_mission"}</p>
                     <h1 className="mt-2 font-headings text-3xl font-bold tracking-tight">Update <span className="text-green-bright">Event</span></h1>
@@ -216,10 +216,10 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
                     />
                     {formResponseError.paymentDetails?.[0] && <ErrorMessageDiv message={formResponseError.paymentDetails?.[0]} textSize={16} />}
                 </fieldset>
-                {successMessage && <ErrorMessageDiv message={successMessage} textSize={16} color='#32ff88' />}
+                {successMessage && <ErrorMessageDiv message={successMessage} textSize={16} color='#b14dff' />}
                 <div className="flex gap-4">
                     <button type="button" onClick={() => handleFormSubmission(false)} className="cursor-pointer rounded-md border border-white/15 bg-white/5 px-5 py-3 font-mono text-xs uppercase tracking-[0.2em] text-white/80 transition-colors hover:border-green-bright/40 hover:text-green-bright">Save Draft</button>
-                    <button type="button" onClick={() => handleFormSubmission(true)} className="cursor-pointer rounded-md bg-green-bright px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_22px_rgba(50,255,136,0.5)]">Publish</button>
+                    <button type="button" onClick={() => handleFormSubmission(true)} className="cursor-pointer rounded-md bg-green-bright px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_22px_rgba(177,77,255,0.5)]">Publish</button>
                 </div>
             </Form>
         </main>

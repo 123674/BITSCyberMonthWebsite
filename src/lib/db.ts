@@ -1,5 +1,5 @@
 import z, { success } from "zod";
-import { imagekit } from "./imagekit";
+import { getImageKit } from "./imagekit";
 import { prisma } from "./prisma";
 import { slugify } from "@/func/stringFunc";
 import { Prisma } from "@/generated/prisma/browser";
@@ -109,7 +109,7 @@ const validateEventSlugGET = async (tx: PrismaClientOrTx, eventTitle: string): P
 
 export const addingEventToDbPOST = async (eventData: EventDSPFType & { publish: boolean }): Promise<string> => {
     return await prisma.$transaction(async (tx) => {
-        const fileUploadMeta = await imagekit.upload({
+        const fileUploadMeta = await getImageKit().upload({
             file: Buffer.from(await eventData.eventPoster!.arrayBuffer()),
             fileName: eventData.title + ".png",
             isPublished: true,
@@ -134,7 +134,7 @@ export const updatingEventToDbPATCH = async (eventData: EventForDBUpdateType, ev
     return await prisma.$transaction(async (tx) => {
         let fileUploadParsedMeta: ImageUploadReturnType | null = null;
         if (eventData.eventPoster) {
-            const fileUploadMeta = await imagekit.upload({
+            const fileUploadMeta = await getImageKit().upload({
                 file: Buffer.from(await eventData.eventPoster!.arrayBuffer()),
                 fileName: eventData.title + ".png",
                 isPublished: true,

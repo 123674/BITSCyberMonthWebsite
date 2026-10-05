@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Chakra_Petch, Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
     "Explore Cyber Month 2026 events, the event timeline, and more from BMSCE IEEE Computer Society.",
 };
 
-export default function RootLayout({ children } : {children : React.JSX.Element}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"

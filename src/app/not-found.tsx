@@ -4,7 +4,7 @@ export default function NotFound() {
     return (
         <main className="relative grid min-h-screen place-items-center overflow-hidden bg-black px-6 text-white">
             {/* grid backdrop */}
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(50,255,136,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(50,255,136,0.06)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_25%,transparent_75%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(177,77,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(177,77,255,0.06)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_25%,transparent_75%)]" />
             <div className="pointer-events-none absolute left-1/4 top-1/4 size-96 rounded-full bg-green-bright/10 blur-3xl" />
             <div className="pointer-events-none absolute bottom-1/4 right-1/4 size-96 rounded-full bg-red/10 blur-3xl" />
 
@@ -19,7 +19,7 @@ export default function NotFound() {
                     {"// signal_lost"}
                 </p>
                 <h1 className="mt-4 font-headings text-[clamp(90px,18vw,220px)] font-bold leading-none tracking-tight text-white">
-                    <span className="drop-shadow-[4px_0_0_rgba(56,217,255,0.5)] drop-shadow-[-4px_0_0_rgba(255,77,94,0.6)]">
+                    <span className="drop-shadow-[4px_0_0_rgba(31,182,255,0.5)] drop-shadow-[-4px_0_0_rgba(255,77,94,0.6)]">
                         404
                     </span>
                 </h1>
@@ -34,7 +34,7 @@ export default function NotFound() {
                 <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                     <Link
                         href="/"
-                        className="rounded-md bg-green-bright px-8 py-4 font-mono text-xs font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(50,255,136,0.6)]"
+                        className="rounded-md bg-green-bright px-8 py-4 font-mono text-xs font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(177,77,255,0.6)]"
                     >
                         Return Home
                     </Link>

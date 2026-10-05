@@ -53,13 +53,13 @@ const statusStyles: Record<EventStatus, { label: string; dot: string; chip: stri
         label: "Registration Open",
         dot: "bg-green-bright",
         chip: "border-green-bright/50 bg-green-bright/10 text-green-bright",
-        cta: "bg-green-bright text-black hover:shadow-[0_0_22px_rgba(50,255,136,0.6)]",
+        cta: "bg-green-bright text-black hover:shadow-[0_0_22px_rgba(177,77,255,0.6)]",
     },
     ongoing: {
         label: "Live Now",
         dot: "bg-cyan",
         chip: "border-cyan/50 bg-cyan/10 text-cyan",
-        cta: "border border-cyan/60 bg-cyan/10 text-cyan hover:shadow-[0_0_22px_rgba(56,217,255,0.5)]",
+        cta: "border border-cyan/60 bg-cyan/10 text-cyan hover:shadow-[0_0_22px_rgba(31,182,255,0.5)]",
     },
     completed: {
         label: "Completed",
@@ -78,7 +78,7 @@ export default function Poster({ event, clickHandler }: { event: PosterEvent, cl
     return (
         <article
             onClick={clickHandler}
-            className="group relative flex w-[min(80vw,300px)] shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-deep-green/80 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-2 hover:border-green-bright/60 hover:shadow-[0_0_40px_rgba(50,255,136,0.25)] focus-visible:outline-2 focus-visible:outline-green-bright"
+            className="group relative flex w-[min(80vw,300px)] shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl border border-white/10 bg-deep-green/80 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-2 hover:border-green-bright/60 hover:shadow-[0_0_40px_rgba(177,77,255,0.25)] focus-visible:outline-2 focus-visible:outline-green-bright"
         >
             {/* HUD corner brackets */}
             {/* <span className="pointer-events-none absolute left-0 top-0 z-10 h-4 w-4 border-l-2 border-t-2 border-green-bright/70" />

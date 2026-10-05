@@ -1,0 +1,202 @@
+.root {
+  --accent: #b14dff;
+  --bg: #090514;
+  --text: #f4f7f8;
+  --muted: #ada4b1;
+  position: relative;
+  width: 100%;
+  background: var(--spiral-bg, var(--bg));
+  color: var(--text);
+  padding-block: 24px 32px;
+  overflow: hidden;
+}
+
+.viewport {
+  --card-w: 300px;
+  --card-h: 200px;
+  --perspective: 1200px;
+  position: relative;
+  width: 100%;
+  height: calc(var(--card-h) * 2.4);
+  perspective: var(--perspective);
+  perspective-origin: 50% 45%;
+  cursor: grab;
+  /* Vertical swipes still scroll the page on touch screens. */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  /* Fade the top and bottom of the spiral into the background. */
+  mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 82%, transparent 100%);
+}
+
+.viewport:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.viewport[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--card-w);
+  height: var(--card-h);
+  margin: calc(var(--card-h) / -2) 0 0 calc(var(--card-w) / -2);
+  transform-style: preserve-3d;
+  will-change: transform;
+  visibility: hidden;
+}
+
+.viewport[data-ready="true"] .card {
+  visibility: visible;
+}
+
+.body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #120b17;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: var(--fade, 1);
+  /* --shade is set per card from JS: 0 = facing the viewer, 1 = at the back. */
+  filter: brightness(calc(1 - var(--shade, 0) * 0.75)) blur(calc(var(--shade, 0) * 3px));
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+.face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.cardTitle {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 28px 14px 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  font-size: clamp(12px, 1.6vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card[data-active="true"] .front {
+  border-color: rgba(177, 77, 255, 0.55);
+  box-shadow: 0 0 40px rgba(177, 77, 255, 0.18);
+}
+
+.card[data-active="true"] .cardTitle {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .viewport:not([data-dragging="true"]) .card:hover .body {
+    transform: translateZ(40px) scale(1.06);
+  }
+
+  .viewport:not([data-dragging="true"]) .card:hover .cardTitle {
+    opacity: 1;
+  }
+
+  .viewport:not([data-dragging="true"]) .card:hover .front {
+    border-color: rgba(177, 77, 255, 0.7);
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-inline: 16px;
+  margin-top: 8px;
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  width: min(60vw, 320px);
+  text-align: center;
+}
+
+.counter {
+  font-family: var(--font-plex-mono), "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.activeTitle {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+}
+
+.arrow:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(177, 77, 255, 0.1);
+}
+
+.arrow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .cardTitle {
+    transition: none;
+  }
+}

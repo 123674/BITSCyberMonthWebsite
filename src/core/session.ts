@@ -45,7 +45,7 @@ export const createUserResponseSession = async (userData: UserDataMiniType, resp
 }
 
 // Get Auth Session from the browser
-export const getOAuthFromSession = async (): Promise<String> => {
+export const getOAuthFromSession = async (): Promise<string> => {
   const cookieStore = await cookies();
   const storedState = cookieStore.get(AUTH_COOKIE_NAME)?.value;
   return storedState ?? '';

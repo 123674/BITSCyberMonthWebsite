@@ -1,11 +1,10 @@
-import { IEEE_CS_SOCIETY } from '@/lib/contants'
-import Image from 'next/image'
-import React from 'react'
+import type { ReactNode } from 'react'
+import AmbientBackground from '@/components/background/AmbientBackground'
 
-const layout = ({ children }: { children: React.JSX.Element }) => {
+const layout = ({ children }: { children: ReactNode }) => {
   return (
     <div className='w-full h-full'>
-      {/* <nav className="fixed left-0 right-0 top-0 z-100 flex h-19.5 items-center justify-between border-b border-[rgba(56,217,255,0.08)] bg-[rgba(2,4,8,0.72)] px-[5vw] backdrop-blur-[20px]">
+      {/* <nav className="fixed left-0 right-0 top-0 z-100 flex h-19.5 items-center justify-between border-b border-[rgba(31,182,255,0.08)] bg-[rgba(2,4,8,0.72)] px-[5vw] backdrop-blur-[20px]">
         <a href="#" className="flex items-center gap-3">
           <div className="grid h-8.5 w-8.5 place-items-center bg-linear-to-br  font-mono text-[13px] font-bold text-white shadow-[0_0_25px_rgba(168,85,247,.22)]">
             <Image
@@ -28,36 +27,37 @@ const layout = ({ children }: { children: React.JSX.Element }) => {
         <div className="hidden items-center gap-7.5 font-mono text-[10px] uppercase lg:flex">
           <a
             href="#about"
-            className="text-[#82918c] transition-colors hover:text-cyan"
+            className="text-[#8c8291] transition-colors hover:text-cyan"
           >
             Society
           </a>
           <a
             href="#events"
-            className="text-[#82918c] transition-colors hover:text-cyan"
+            className="text-[#8c8291] transition-colors hover:text-cyan"
           >
             Events
           </a>
           <a
             href="#hackathon"
-            className="text-[#82918c] transition-colors hover:text-cyan"
+            className="text-[#8c8291] transition-colors hover:text-cyan"
           >
             Hackathon
           </a>
           <a
             href="#schools"
-            className="text-[#82918c] transition-colors hover:text-cyan"
+            className="text-[#8c8291] transition-colors hover:text-cyan"
           >
             Outreach
           </a>
           <a
             href="#events"
-            className="border border-[rgba(56,217,255,0.5)] px-4.25 py-2.75 text-cyan shadow-[inset_0_0_20px_rgba(56,217,255,.04)] transition-all hover:bg-[rgba(56,217,255,.08)]"
+            className="border border-[rgba(31,182,255,0.5)] px-4.25 py-2.75 text-cyan shadow-[inset_0_0_20px_rgba(31,182,255,.04)] transition-all hover:bg-[rgba(31,182,255,.08)]"
           >
             Explore Cyber Month ↗
           </a>
         </div>
       </nav> */}
+      <AmbientBackground />
       {children}
     </div>
   )

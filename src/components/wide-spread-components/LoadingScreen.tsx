@@ -1,7 +1,7 @@
 export default function LoadingScreen({ label = "Decrypting transmission" }: { label?: string }) {
     return (
         <main className="relative grid min-h-screen place-items-center overflow-hidden bg-black text-white">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(50,255,136,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(50,255,136,0.06)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_25%,transparent_75%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(177,77,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(177,77,255,0.06)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_25%,transparent_75%)]" />
             <div className="pointer-events-none absolute left-1/2 top-1/2 size-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-bright/10 blur-3xl" />
 
             <div className="relative z-10 flex flex-col items-center gap-6">

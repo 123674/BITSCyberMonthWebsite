@@ -1,0 +1,120 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #000;
+  overflow: hidden;
+  transition: opacity 850ms cubic-bezier(.4, 0, .2, 1);
+}
+
+.overlay[data-phase="leaving"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+/* Extremely subtle camera push-in across the whole intro. */
+.overlay[data-running="true"] .stage {
+  animation: pushIn var(--total) cubic-bezier(.3, .1, .3, 1) both;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.logoBox {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(56vw, 42vh, 340px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+}
+
+.logo,
+.pulse {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.logo {
+  display: block;
+  opacity: 0;
+  user-select: none;
+}
+
+.overlay[data-running="true"] .logo {
+  animation: logoReveal 1000ms var(--reveal-at) cubic-bezier(.2, .7, .2, 1) forwards;
+}
+
+.glow {
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(249, 163, 26, .32), rgba(249, 163, 26, 0) 72%);
+  filter: blur(18px);
+  opacity: 0;
+}
+
+.overlay[data-running="true"] .glow {
+  animation: glowSettle 1800ms var(--pulse-at) ease-out forwards;
+}
+
+/* Light pulse, masked to the logo silhouette so nothing spills outside it. */
+.pulse {
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .42) 50%, transparent 62%);
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  opacity: 0;
+}
+
+.overlay[data-running="true"] .pulse {
+  animation: pulseSweep 1100ms var(--pulse-at) cubic-bezier(.45, 0, .25, 1) forwards;
+}
+
+@keyframes pushIn {
+  from { transform: scale(1); }
+  to { transform: scale(1.04); }
+}
+
+@keyframes logoReveal {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    clip-path: circle(22% at 50% 50%);
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    clip-path: circle(75% at 50% 50%);
+  }
+}
+
+@keyframes glowSettle {
+  0% { opacity: 0; }
+  35% { opacity: .9; }
+  100% { opacity: .3; }
+}
+
+@keyframes pulseSweep {
+  0% { opacity: 0; background-position: 100% 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; background-position: 0 0; }
+}

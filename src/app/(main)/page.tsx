@@ -1,4 +1,5 @@
 import CyberSecurityEventShelf from '@/components/home/HomePage';
+import EntranceIntro from '@/components/intro/EntranceIntro';
 import { EventFromBDBriefBreif } from '@/func/zodEventSchema';
 import { briefPublishedEventsDataGET } from '@/lib/db';
 import { notFound } from 'next/navigation';
@@ -9,19 +10,26 @@ import { notFound } from 'next/navigation';
 
 export default async function Page() {
     let timelineEvents: EventFromBDBriefBreif = [];
-    try {
-        const rawData = await briefPublishedEventsDataGET();
-        if(rawData === null) {
-            return notFound();
+    let eventFeedAvailable = Boolean(process.env.DATABASE_URL);
+
+    if (eventFeedAvailable) {
+        try {
+            const rawData = await briefPublishedEventsDataGET();
+            if(rawData === null) {
+                return notFound();
+            }
+            timelineEvents = rawData;
+        } catch (e) {
+            eventFeedAvailable = false;
+            console.error("Error loading timeline events:", e);
         }
-        timelineEvents= rawData;
-    } catch (e) {
-        // If the database is unreachable, still show the homepage (with an empty timeline).
-        console.log("Error loading timeline events : ", e);
     }
+
     timelineEvents.sort((event1,event2) => event2.startDate.getTime() - event1.startDate.getTime())
-    // return (<HomeMainPage timelineEvents={timelineEvents} /> )
-    console.log(timelineEvents);
-    return <CyberSecurityEventShelf timelineEvents={timelineEvents} />
-    // return <HomePage  />;
+    return (
+        <>
+            <EntranceIntro />
+            <CyberSecurityEventShelf timelineEvents={timelineEvents} eventFeedAvailable={eventFeedAvailable} />
+        </>
+    )
 }

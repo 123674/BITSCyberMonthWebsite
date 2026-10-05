@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getEventStatus } from "@/components/home/Poster";
+import ScrollTextReveal from "@/components/background/ScrollTextReveal";
 
 function formatDate(date: Date) {
     return new Intl.DateTimeFormat("en-US", {
@@ -62,6 +63,7 @@ export default async function EventPage({ event }: { event: EventFromBDBriefBrei
 
     return (
         <main className="min-h-screen overflow-hidden bg-black text-white">
+            <ScrollTextReveal />
 
             {/* TOP STATUS BAR */}
             <div className="sticky top-0 z-30 border-b border-border-green bg-black/80 backdrop-blur-md">
@@ -70,7 +72,7 @@ export default async function EventPage({ event }: { event: EventFromBDBriefBrei
                         <span className="size-1.5 animate-pulse rounded-full bg-green-bright" />
                         Live Feed
                     </span>
-                    <span className="hidden sm:inline">//</span>
+                    <span className="hidden sm:inline">{'//'}</span>
                     <span className="hidden sm:inline">event.detail.render</span>
                     <Link href="/#events" className="ml-auto text-muted-2 transition-colors hover:text-cyan">
                         ← Return to Grid
@@ -101,7 +103,7 @@ export default async function EventPage({ event }: { event: EventFromBDBriefBrei
                                 {event.description}
                             </p>
 
-                            <div className="mt-12 overflow-hidden rounded-xl border border-border-green shadow-[0_0_60px_rgba(50,255,136,0.12)]">
+                            <div className="mt-12 overflow-hidden rounded-xl border border-border-green shadow-[0_0_60px_rgba(177,77,255,0.12)]">
                                 <div className="flex items-center gap-2 border-b border-border-green bg-black-2 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.25em] text-green-bright">
                                     <span className="size-1.5 animate-pulse rounded-full bg-green-bright" />
                                     mission_parameters
@@ -143,7 +145,7 @@ export default async function EventPage({ event }: { event: EventFromBDBriefBrei
                                     href={event.formLink}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex w-full items-center justify-center gap-2 rounded-md bg-green-bright px-6 py-4 font-mono text-xs font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(50,255,136,0.6)]"
+                                    className="flex w-full items-center justify-center gap-2 rounded-md bg-green-bright px-6 py-4 font-mono text-xs font-bold uppercase tracking-[0.25em] text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(177,77,255,0.6)]"
                                 >
                                     Register for Event ↗
                                 </a>
@@ -159,11 +161,11 @@ export default async function EventPage({ event }: { event: EventFromBDBriefBrei
 
             {/* ================= ACCESS ================= */}
             {/* <section className="relative border-t border-border-green px-[5vw] py-24">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(50,255,136,0.06),transparent_60%)]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(177,77,255,0.06),transparent_60%)]" />
                 <div className="relative mx-auto max-w-4xl text-center">
                     <p className="font-mono text-[11px] uppercase tracking-[0.5em] text-green-bright">{"// final_transmission"}</p>
                     <h2 className="mt-4 font-headings text-[clamp(36px,6vw,72px)] font-bold leading-none tracking-tight">
-                        Ready to <span className="text-green-bright drop-shadow-[0_0_25px_rgba(50,255,136,0.45)]">join the grid?</span>
+                        Ready to <span className="text-green-bright drop-shadow-[0_0_25px_rgba(177,77,255,0.45)]">join the grid?</span>
                     </h2>
                     <p className="mx-auto mt-6 max-w-xl text-muted">
                         Secure your slot before the window closes. One form submission and you are in.
@@ -173,7 +175,7 @@ export default async function EventPage({ event }: { event: EventFromBDBriefBrei
                             href={event.formLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-10 inline-block rounded-md bg-green-bright px-12 py-5 font-mono text-sm font-bold uppercase tracking-[0.3em] text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(50,255,136,0.6)]"
+                            className="mt-10 inline-block rounded-md bg-green-bright px-12 py-5 font-mono text-sm font-bold uppercase tracking-[0.3em] text-black transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(177,77,255,0.6)]"
                         >
                             Register for Event ↗
                         </a>
