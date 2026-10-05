@@ -3,11 +3,12 @@ import { imagekit } from "./imagekit";
 import { prisma } from "./prisma";
 import { slugify } from "@/func/stringFunc";
 import { Prisma } from "@/generated/prisma/browser";
-import { EventDSPFType, EventFromBDBriefSchema, EventSchemaDDPLWithSlugWithID, EventSchemaDSPL, EventSchemaDSPLWithoutSlug, EventSchemaDSPLWithoutSlugOptional, EventSchemaForDBDSPF, FileMetaSchema, ImageUploadReturnType } from "@/func/zodEventSchema";
+import { EventDSPFType, EventFromBDBriefBreif, EventFromBDBriefSchema, EventSchemaDDPLWithSlugWithID, EventSchemaDSPL, EventSchemaDSPLWithoutSlug, EventSchemaDSPLWithoutSlugOptional, EventSchemaForDBDSPF, FileMetaSchema, ImageUploadReturnType } from "@/func/zodEventSchema";
 
 type PrismaClientOrTx = typeof prisma | Prisma.TransactionClient;
 
-export const briefPublishedEventsDataGET = async () => {
+export const briefPublishedEventsDataGET = async () : Promise<EventFromBDBriefBreif | null> => {
+    
     const rawData = await prisma.events.findMany({
         where: {
             publish: true
@@ -25,7 +26,11 @@ export const briefPublishedEventsDataGET = async () => {
         }
     })
 
-    return EventFromBDBriefSchema.parse(rawData)
+    const parsedRes = EventFromBDBriefSchema.safeParse(rawData);
+    if(!parsedRes.success) {
+        return null;
+    }
+    return parsedRes.data!;
 }
 
 export const briefAllEventsDataGET = async () => {

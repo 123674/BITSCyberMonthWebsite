@@ -4,8 +4,8 @@ import React from 'react'
 
 const layout = ({ children }: { children: React.JSX.Element }) => {
   return (
-    <div>
-      <nav className="fixed left-0 right-0 top-0 z-100 flex h-19.5 items-center justify-between border-b border-[rgba(56,217,255,0.08)] bg-[rgba(2,4,8,0.72)] px-[5vw] backdrop-blur-[20px]">
+    <div className='w-full h-full'>
+      {/* <nav className="fixed left-0 right-0 top-0 z-100 flex h-19.5 items-center justify-between border-b border-[rgba(56,217,255,0.08)] bg-[rgba(2,4,8,0.72)] px-[5vw] backdrop-blur-[20px]">
         <a href="#" className="flex items-center gap-3">
           <div className="grid h-8.5 w-8.5 place-items-center bg-linear-to-br  font-mono text-[13px] font-bold text-white shadow-[0_0_25px_rgba(168,85,247,.22)]">
             <Image
@@ -57,7 +57,7 @@ const layout = ({ children }: { children: React.JSX.Element }) => {
             Explore Cyber Month ↗
           </a>
         </div>
-      </nav>
+      </nav> */}
       {children}
     </div>
   )

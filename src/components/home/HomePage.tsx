@@ -1,265 +1,147 @@
 "use client";
 
+import { IEEE_CS_SOCIETY } from "@/lib/contants";
 import Image from "next/image";
-import SiteChrome from "@/components/site/SiteChrome";
-import { useReveal } from "@/components/site/useReveal";
-import EventTimeline from "@/components/home/EventTimeline";
-import type { EventCardData } from "@/lib/eventCards";
+import { useRouter } from "next/navigation";
+import Poster, { getEventStatus, EventStatus } from "./Poster";
+import { EventFromBDBriefBreif } from "@/func/zodEventSchema";
 
-/* ─── Homepage Component ────────────────────────────────────────────────────── */
-export default function HomePage({ timelineEvents }: { timelineEvents: EventCardData[] }) {
-  useReveal();
+const sections: { key: EventStatus; index: string; title: string; tagline: string; accent: string }[] = [
+  { key: "ongoing", index: "01", title: "Ongoing Transmissions", tagline: "// live now on the grid", accent: "text-cyan" },
+  { key: "upcoming", index: "02", title: "Upcoming Operations", tagline: "// registration window open", accent: "text-green-bright" },
+  { key: "completed", index: "03", title: "Archived Ops", tagline: "// mission logs", accent: "text-muted" },
+];
 
+const marqueeItems = ["HACKATHONS", "CTF", "WORKSHOPS", "SECURITY BRIEFINGS", "BUG BASH", "CAPTURE THE FLAG", "ZERO DAYS", "CYBER MONTH 2026"];
+
+export default function CyberSecurityEventShelf({ timelineEvents }: { timelineEvents: EventFromBDBriefBreif }) {
+
+  const router = useRouter();
+
+  const grouped: Record<EventStatus, typeof timelineEvents> = {
+    upcoming: timelineEvents.filter((e) => getEventStatus(e.startDate, e.endDate) === "upcoming"),
+    ongoing: timelineEvents.filter((e) => getEventStatus(e.startDate, e.endDate) === "ongoing"),
+    completed: timelineEvents.filter((e) => getEventStatus(e.startDate, e.endDate) === "completed"),
+  };
 
   return (
-    <SiteChrome constellation={{ nodeCount: 35, connectionDistance: 180, speed: 0.35 }}>
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <header className="sticky top-0 z-20 border-b border-border-green bg-black/80 px-4 py-3 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <Image
+            src={IEEE_CS_SOCIETY}
+            alt="IEEE Computer Society Logo"
+            width={42}
+            height={42}
+          />
+          <h5 className="font-headings text-lg font-semibold tracking-tight text-white">
+            BMSCE <span className="text-green-bright">IEEE COMPUTER SOCIETY</span>
+          </h5>
+          <span className="ml-auto hidden items-center gap-2 rounded-full border border-border-green bg-green-bg px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-green-bright sm:flex">
+            <span className="size-1.5 animate-pulse rounded-full bg-green-bright" />
+            System Online
+          </span>
+        </div>
+      </header>
 
-      {/* ── Hero section: left open for network, right holds resized shield ── */}
-      <main style={{ position: "relative", zIndex: 1 }}>
-        <section className="hero-section">
-          {/* Left: Hero typography with blue+purple gradient, subtle glow and sparkles */}
-          <div className="hero-text">
-            {/* Sparkles / glitter effect styles */}
-            <style>{`
-              @keyframes sparkleTwinkle {
-                0%, 100% { opacity: 0; transform: scale(0.2) rotate(0deg); }
-                50% { opacity: 0.9; transform: scale(1) rotate(45deg); }
-              }
-              @keyframes textGradientShift {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-              }
-            `}</style>
+      {/* Hero */}
+      <section className="relative overflow-hidden px-[6vw] pb-16 pt-20 text-center">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(50,255,136,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(50,255,136,0.06)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_30%,transparent_75%)]" />
+        <div className="pointer-events-none absolute left-1/4 top-10 size-80 rounded-full bg-green-bright/10 blur-3xl" />
+        <div className="pointer-events-none absolute right-1/4 top-24 size-80 rounded-full bg-cyan/10 blur-3xl" />
 
-            <div className="reveal-onload hero-heading">
-              {/* Subtle elegant sparkle stars */}
-              {/* Sparkle 1: Top near subtitle */}
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{
-                position: "absolute", top: "-14px", left: "220px",
-                animation: "sparkleTwinkle 3.2s ease-in-out infinite", animationDelay: "0.2s",
-                pointerEvents: "none", filter: "drop-shadow(0 0 4px #93c5fd)"
-              }}>
-                <path d="M6 0 C6 3.3 8.7 6 12 6 C8.7 6 6 8.7 6 12 C6 8.7 3.3 6 0 6 C3.3 6 6 3.3 6 0 Z" fill="#93c5fd" />
-              </svg>
+        <p className="font-mono text-xs uppercase tracking-[0.5em] text-green-bright">
+          {"// breach the calendar"}
+        </p>
+        <h1 className="mt-4 font-headings text-[clamp(44px,9vw,120px)] font-bold leading-none tracking-tight text-white">
+          <span className="drop-shadow-[0_0_25px_rgba(50,255,136,0.45)]">CYBER</span>{" "}
+          <span className="text-green-bright drop-shadow-[4px_0_0_rgba(56,217,255,0.5)] drop-shadow-[-4px_0_0_rgba(255,77,94,0.4)]">
+            MONTH
+          </span>
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
+          A full month of hackathons, CTFs, workshops and security briefings. Jack in, level up, and defend the grid.
+        </p>
 
-              {/* Sparkle 2: Near CYBER 'C' */}
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style={{
-                position: "absolute", top: "34px", left: "-16px",
-                animation: "sparkleTwinkle 3.8s ease-in-out infinite", animationDelay: "1.4s",
-                pointerEvents: "none", filter: "drop-shadow(0 0 5px #c084fc)"
-              }}>
-                <path d="M6 0 C6 3.3 8.7 6 12 6 C8.7 6 6 8.7 6 12 C6 8.7 3.3 6 0 6 C3.3 6 6 3.3 6 0 Z" fill="#c084fc" />
-              </svg>
+        <div className="mt-10 flex flex-wrap justify-center gap-3 font-mono text-[11px] uppercase tracking-widest">
+          <span className="rounded-full border border-cyan/40 bg-cyan/10 px-5 py-2 text-cyan shadow-[0_0_18px_rgba(56,217,255,0.25)]">
+            {grouped.ongoing.length} ongoing
+          </span>
+          <span className="rounded-full border border-green-bright/40 bg-green-bright/10 px-5 py-2 text-green-bright shadow-[0_0_18px_rgba(50,255,136,0.25)]">
+            {grouped.upcoming.length} upcoming · registration open
+          </span>
+          <span className="rounded-full border border-white/15 bg-white/5 px-5 py-2 text-muted">
+            {grouped.completed.length} completed
+          </span>
+        </div>
+      </section>
 
-              {/* Sparkle 3: Near CYBER 'R' */}
-              <svg width="13" height="13" viewBox="0 0 12 12" fill="none" style={{
-                position: "absolute", top: "42px", right: "28px",
-                animation: "sparkleTwinkle 4.1s ease-in-out infinite", animationDelay: "2.5s",
-                pointerEvents: "none", filter: "drop-shadow(0 0 5px #60a5fa)"
-              }}>
-                <path d="M6 0 C6 3.3 8.7 6 12 6 C8.7 6 6 8.7 6 12 C6 8.7 3.3 6 0 6 C3.3 6 6 3.3 6 0 Z" fill="#60a5fa" />
-              </svg>
+      {/* Marquee strip */}
+      <div className="overflow-hidden border-y border-border-green bg-black-2 py-3">
+        <div className="flex w-max animate-[marquee_24s_linear_infinite] gap-10 font-headings text-sm font-semibold uppercase tracking-[0.4em] text-green-bright/70">
+          {[...marqueeItems, ...marqueeItems].map((item, i) => (
+            <span key={i} className="flex items-center gap-10">
+              {item} <span className="text-cyan">//</span>
+            </span>
+          ))}
+        </div>
+      </div>
 
-              {/* Sparkle 4: Near MONTH '-' */}
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style={{
-                position: "absolute", bottom: "35px", right: "145px",
-                animation: "sparkleTwinkle 3.5s ease-in-out infinite", animationDelay: "0.9s",
-                pointerEvents: "none", filter: "drop-shadow(0 0 4px #e879f9)"
-              }}>
-                <path d="M6 0 C6 3.3 8.7 6 12 6 C8.7 6 6 8.7 6 12 C6 8.7 3.3 6 0 6 C3.3 6 6 3.3 6 0 Z" fill="#e879f9" />
-              </svg>
+      {/* Event sections */}
+      <main id="events" className="relative mx-auto max-w-6xl px-[6vw] pb-24">
+        {sections.map((section) => (
+          <section key={section.key} className="mt-20">
+            <div className="flex items-end gap-4 border-b border-border-green pb-4">
+              <span className="font-headings text-7xl font-bold leading-none text-white/10">{section.index}</span>
+              <div>
+                <h2 className={`font-headings text-3xl font-bold tracking-tight ${section.accent}`}>
+                  {section.title}
+                </h2>
+                <p className="font-mono text-[11px] uppercase tracking-widest text-muted-2">{section.tagline}</p>
+              </div>
+              <span className="ml-auto font-mono text-xs text-muted-2">[{grouped[section.key].length}]</span>
+            </div>
 
-              {/* Sparkle 5: Near 2026 '6' */}
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{
-                position: "absolute", bottom: "-6px", right: "-12px",
-                animation: "sparkleTwinkle 3.9s ease-in-out infinite", animationDelay: "1.8s",
-                pointerEvents: "none", filter: "drop-shadow(0 0 5px #93c5fd)"
-              }}>
-                <path d="M6 0 C6 3.3 8.7 6 12 6 C8.7 6 6 8.7 6 12 C6 8.7 3.3 6 0 6 C3.3 6 6 3.3 6 0 Z" fill="#93c5fd" />
-              </svg>
-
-              {/* "BMSCE IEEE CS SOCIETY PRESENTS" */}
-              <p
-                style={{
-                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
-                  fontSize: "1.05rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  marginBottom: "0.85rem",
-                  background: "linear-gradient(90deg, #60a5fa 0%, #a78bfa 50%, #c084fc 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  filter: "drop-shadow(0 0 12px rgba(96, 165, 250, 0.35))",
-                }}
-              >
-                BMSCE IEEE CS SOCIETY PRESENTS
+            {grouped[section.key].length > 0 ? (
+              <div className="mt-8 flex flex-wrap gap-6">
+                {grouped[section.key].map((event) => (
+                  <Poster
+                    key={event.eventID}
+                    clickHandler={() => router.push(`/events/${event.eventSlug}`)}
+                    event={event}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted-2">
+                {"// no events detected in this sector"}
               </p>
+            )}
+          </section>
+        ))}
 
-              {/* "CYBER MONTH -2026" */}
-              <h1
-                className="hero-title"
-                style={{
-                  fontFamily: "var(--font-heading), 'Space Grotesk', system-ui, sans-serif",
-                  fontSize: "clamp(3.15rem, 4.7vw, 4.8rem)",
-                  fontWeight: 800,
-                  lineHeight: 1.08,
-                  letterSpacing: "-0.01em",
-                  textTransform: "uppercase",
-                  margin: 0,
-                  background:
-                    "linear-gradient(125deg, #60a5fa 0%, #a855f7 40%, #c084fc 70%, #38bdf8 100%)",
-                  backgroundSize: "200% auto",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  animation: "textGradientShift 9s ease infinite",
-                  filter:
-                    "drop-shadow(0 0 20px rgba(168, 85, 247, 0.4)) drop-shadow(0 0 45px rgba(59, 130, 246, 0.25))",
-                }}
-              >
-                CYBER
-                <br />
-                <span style={{ display: "inline-block", whiteSpace: "nowrap" }}>MONTH -2026</span>
-              </h1>
-            </div>
-
-            {/* Tagline */}
-            <p
-              className="reveal-onload"
-              style={{
-                animationDelay: "180ms",
-                fontFamily: "'Space Grotesk', system-ui, sans-serif",
-                fontSize: "1.3rem",
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                marginTop: "1.4rem",
-                marginBottom: 0,
-                background: "linear-gradient(90deg, #60a5fa 0%, #a78bfa 50%, #c084fc 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                filter: "drop-shadow(0 0 12px rgba(96, 165, 250, 0.35))",
-              }}
-            >
-              Learn. Secure. Innovate. Defend.
-            </p>
-
-            {/* Cyber Month description */}
-            <p
-              className="reveal-onload"
-              style={{
-                animationDelay: "340ms",
-                fontFamily: "'Space Grotesk', system-ui, sans-serif",
-                fontSize: "1.08rem",
-                lineHeight: 1.7,
-                color: "rgba(200, 210, 230, 0.85)",
-                maxWidth: "560px",
-                marginTop: "0.9rem",
-                marginBottom: 0,
-              }}
-            >
-              Cyber Month 2026 is a month-long cybersecurity initiative featuring technical
-              challenges, workshops, awareness activities, and hands-on experiences designed to
-              help students build practical cybersecurity skills and become more aware of the
-              evolving digital threat landscape.
-            </p>
+        {/* Timeline footer */}
+        <div id="archive" className="mt-20 border-t border-border-green pt-6">
+          <strong className="font-mono text-xs uppercase tracking-[0.3em] text-green-bright">Event Archive</strong>
+          <p className="mt-2 text-sm text-muted">
+            {timelineEvents.length} featured events · More coming soon...
+          </p>
+          <div className="mt-4 flex gap-8 overflow-x-auto pb-2">
+            {timelineEvents.map((event) => (
+              <div key={event.eventID} className="min-w-0 shrink-0">
+                <div className="font-mono text-[11px] text-muted-2">
+                  {event.startDate.toDateString()}
+                </div>
+                <div className="mt-1 text-[12px] text-white/80">
+                  {event.title}
+                </div>
+              </div>
+            ))}
           </div>
-
-          {/* Right: cybersecurity shield image reduced in size by ~28% (floats gently) */}
-          <div
-            className="hero-float hero-visual"
-          >
-            {/* Pulsing glow behind the shield */}
-            <div className="hero-glow" aria-hidden="true" />
-            <div
-              className="reveal-onload"
-              style={{
-                animationDelay: "250ms",
-                position: "relative",
-                width: "100%",
-                maxWidth: "415px", // Slightly increased
-                borderRadius: "14px",
-                overflow: "hidden",
-                boxShadow:
-                  "0 0 65px rgba(30, 80, 200, 0.15), 0 0 150px rgba(10, 30, 80, 0.28)",
-              }}
-            >
-              {/* Edge fades for natural blending into black background */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "20%",
-                  background: "linear-gradient(to bottom, #000 0%, transparent 100%)",
-                  zIndex: 2,
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: "20%",
-                  background: "linear-gradient(to top, #000 0%, transparent 100%)",
-                  zIndex: 2,
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  bottom: 0,
-                  width: "14%",
-                  background: "linear-gradient(to right, #000 0%, transparent 100%)",
-                  zIndex: 2,
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  width: "10%",
-                  background: "linear-gradient(to left, #000 0%, transparent 100%)",
-                  zIndex: 2,
-                  pointerEvents: "none",
-                }}
-              />
-
-              <Image
-                src="/cyber-shield.jpg"
-                alt="Cybersecurity network shield visualization"
-                width={1024}
-                height={1024}
-                priority
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  display: "block",
-                  mixBlendMode: "lighten",
-                  filter: "saturate(0.88) brightness(0.96)",
-                }}
-              />
-              {/* Scanning light line sweeping over the shield */}
-              <div className="hero-scan" aria-hidden="true" />
-            </div>
-          </div>
-        </section>
-
-        {/* ── Event timeline (built from published events) ── */}
-        <EventTimeline events={timelineEvents} />
+        </div>
       </main>
-    </SiteChrome>
+
+    </div>
   );
 }

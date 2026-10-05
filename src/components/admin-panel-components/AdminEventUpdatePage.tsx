@@ -77,49 +77,60 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
     }
 
     return (
-        <main className='text-white'>
-            <Form action={() => { }} >
+        <main className="min-h-screen bg-black py-16 text-white">
+            <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(50,255,136,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(50,255,136,0.05)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_center,#000_30%,transparent_75%)]" />
+            <Form action={() => { }} className="relative z-10 mx-auto flex w-full max-w-3xl flex-col gap-8 rounded-xl border border-border-green bg-black-2/80 p-8 shadow-[0_0_60px_rgba(50,255,136,0.1)] backdrop-blur-md">
+                <header>
+                    <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-cyan">{"// edit_mission"}</p>
+                    <h1 className="mt-2 font-headings text-3xl font-bold tracking-tight">Update <span className="text-green-bright">Event</span></h1>
+                </header>
+
                 {formResponseError?.metaError?.[0] && <ErrorMessageDiv message={formResponseError.metaError?.[0]} textSize={16} />}
-                <fieldset>
-                    <legend>Title</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Title</legend>
                     <input
                         type="text"
                         id="titleInputField"
                         value={formResponseState.title}
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, title: e.target.value }))}
+                        className="rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.title?.[0] && <ErrorMessageDiv message={formResponseError.title?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>Description</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Description</legend>
                     <textarea
                         id="descriptionTextArea"
                         value={formResponseState.description}
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, description: e.target.value }))}
+                        className="min-h-28 rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.description?.[0] && <ErrorMessageDiv message={formResponseError.description?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>Start Date</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Start Date</legend>
                     <input
                         type='datetime-local'
                         value={formResponseState.startDate}
                         min={new Date().toISOString().slice(0, 16)}
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, startDate: e.target.value }))}
+                        className="rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.startDate?.[0] && <ErrorMessageDiv message={formResponseError.startDate?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>End Date</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">End Date</legend>
                     <input
                         type='datetime-local'
                         value={formResponseState.endDate}
                         min={new Date().toISOString().slice(0, 16)}
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, endDate: e.target.value }))}
+                        className="rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.endDate?.[0] && <ErrorMessageDiv message={formResponseError.endDate?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Event Poster</legend>
                     <input
                         type="file"
                         accept="image/png,image/jpeg,image/webp"
@@ -128,42 +139,50 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
                         className="hidden"
                         onChange={(e) => handleChannlLogoChange(e)}
                     />
-                    <span className="font-bold text-mutedheadings">Channel Logo</span>
-                    <div className="flex gap-4 items-center mt-4">
-                        <label htmlFor="eventPosterInputField" className="">
-                            {eventPosterPreview ? <Image src={eventPosterPreview} className="" height={120} width={120} alt="Event Poster" /> :
-                                <div className="">
+                    <div className="flex items-center gap-4">
+                        <label htmlFor="eventPosterInputField" className="cursor-pointer">
+                            {eventPosterPreview ? <Image src={eventPosterPreview} height={120} width={120} alt="Event Poster" className="rounded-md border border-border-green object-cover" /> :
+                                <div className="grid size-[120px] place-items-center rounded-md border border-dashed border-border-green font-mono text-[11px] uppercase tracking-widest text-muted-2 transition-colors hover:border-green-bright/60 hover:text-green-bright">
                                     Upload
                                 </div>}
                         </label>
-                        <div className="flex flex-col text-[15.74px] ">
-                            <h5 className="font-semibold">Upload the logo</h5>
-                            <span>Choose a photo as your logo</span>
-                            <span>Square aspect ratio work best</span>
-                            <span className="rounded-full w-min whitespace-pre bg-background2 px-2 py-0.5">PNG ⋅ JPEG ⋅ WEBP</span>
+                        <div className="flex flex-col gap-1 text-sm text-muted">
+                            <h5 className="font-semibold text-white">Upload the poster</h5>
+                            <span>Choose a photo for your event</span>
+                            <span className="w-min whitespace-pre rounded-full bg-green-bg px-2 py-0.5 font-mono text-[10px] text-green-bright">PNG ⋅ JPEG ⋅ WEBP</span>
                         </div>
                     </div>
                     {formResponseError?.eventPoster?.[0] && <ErrorMessageDiv message={formResponseError?.eventPoster[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>Location</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Location</legend>
                     <input
                         type="text"
                         id="locationInputField"
                         value={formResponseState.location}
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, location: e.target.value }))}
+                        className="rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.location?.[0] && <ErrorMessageDiv message={formResponseError.location?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>Mode</legend>
-                    <button style={formResponseState.mode === 'Offline' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, mode: 'Offline' }))} type="button">Offline</button>
-                    <button style={formResponseState.mode === 'Online' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, mode: 'Online' }))} type="button">Online</button>
-                    <button style={formResponseState.mode === 'Mixed' ? { backgroundColor: 'red' } : {}} onClick={() => setFormResponseState(prev => ({ ...prev, mode: 'Mixed' }))} type="button">Mixed</button>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Mode</legend>
+                    <div className="flex gap-3">
+                        {(['Offline', 'Online', 'Mixed'] as const).map((m) => (
+                            <button
+                                key={m}
+                                onClick={() => setFormResponseState(prev => ({ ...prev, mode: m }))}
+                                type="button"
+                                className={`cursor-pointer rounded-md border px-4 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors ${formResponseState.mode === m ? 'border-green-bright bg-green-bright/10 text-green-bright' : 'border-white/10 text-muted hover:border-green-bright/40'}`}
+                            >
+                                {m}
+                            </button>
+                        ))}
+                    </div>
                     {formResponseError.mode?.[0] && <ErrorMessageDiv message={formResponseError.mode?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>Google Form Link</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Google Form Link</legend>
                     <input
                         type="text"
                         id="formLinkInputField"
@@ -173,30 +192,35 @@ const AdminEventUpdatePage = ({previousData, url,eventID} : {previousData : Even
                             setFormResponseError(prev => ({ ...prev, formLink: [isValidLink ? '' : 'Invalid Form Link'] }))
                             setFormResponseState(prev => ({ ...prev, formLink: e.target.value }))
                         }}
+                        className="rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.formLink?.[0] && <ErrorMessageDiv message={formResponseError.formLink?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>Contact Details</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Contact Details</legend>
                     <textarea
                         id="contactDetailsTextArea"
                         value={formResponseState.contactDetails}
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, contactDetails: e.target.value }))}
+                        className="min-h-24 rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.contactDetails?.[0] && <ErrorMessageDiv message={formResponseError.contactDetails?.[0]} textSize={16} />}
                 </fieldset>
-                <fieldset>
-                    <legend>Payment Details</legend>
+                <fieldset className="flex flex-col gap-2">
+                    <legend className="font-mono text-[11px] uppercase tracking-widest text-green-bright">Payment Details</legend>
                     <textarea
                         id="paymentDetailsTextArea"
                         value={formResponseState.paymentDetails}
                         onChange={(e) => setFormResponseState(prev => ({ ...prev, paymentDetails: e.target.value }))}
+                        className="min-h-24 rounded-md border border-border-green bg-black px-4 py-2.5 font-mono text-sm text-white focus:border-green-bright/60 focus:outline-none"
                     />
                     {formResponseError.paymentDetails?.[0] && <ErrorMessageDiv message={formResponseError.paymentDetails?.[0]} textSize={16} />}
                 </fieldset>
-                {successMessage && <ErrorMessageDiv message={successMessage} textSize={16} color='#05df72' />}
-                <button type="button"  onClick={() => handleFormSubmission(false)} >Save Draft</button>
-                <button type="button"  onClick={() => handleFormSubmission(true)} >Publish</button>
+                {successMessage && <ErrorMessageDiv message={successMessage} textSize={16} color='#32ff88' />}
+                <div className="flex gap-4">
+                    <button type="button" onClick={() => handleFormSubmission(false)} className="cursor-pointer rounded-md border border-white/15 bg-white/5 px-5 py-3 font-mono text-xs uppercase tracking-[0.2em] text-white/80 transition-colors hover:border-green-bright/40 hover:text-green-bright">Save Draft</button>
+                    <button type="button" onClick={() => handleFormSubmission(true)} className="cursor-pointer rounded-md bg-green-bright px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.2em] text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_22px_rgba(50,255,136,0.5)]">Publish</button>
+                </div>
             </Form>
         </main>
     )

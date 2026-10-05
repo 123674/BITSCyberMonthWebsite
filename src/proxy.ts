@@ -1,25 +1,35 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { ADMIN_COOKIE, isValidAdminSession } from '@/lib/adminAuth'
+// import { type NextRequest } from "next/server";
 
-const LOGIN_PATH = '/admin/login'
+import { NextRequest, NextResponse } from "next/server";
+import { getUserFromSession } from "./core/session";
+import z from "zod";
 
-// Send anyone who isn't logged in to the admin login page.
-// The event-saving server actions re-check the session themselves.
-export async function proxy(request: NextRequest) {
-    return NextResponse.next()
-    const { pathname, search } = request.nextUrl
-    // if (pathname === LOGIN_PATH) 
+const adminRoute = "/admin";
 
-    // if (await isValidAdminSession(request.cookies.get(ADMIN_COOKIE)?.value)) {
-    //     return NextResponse.next()
-    // }
+export const proxy = async (request: NextRequest) => {
+    const response = await middlewareAuth(request) ?? NextResponse.next();
+    return response;
+}
 
-    // const loginUrl = new URL(LOGIN_PATH, request.url)
-    // loginUrl.searchParams.set('next', pathname + search)
-    // return NextResponse.redirect(loginUrl)
+async function middlewareAuth(request: NextRequest) {
+    const callingUrl = request.nextUrl.pathname;
+    const user = await getUserFromSession();
+    if (callingUrl.startsWith(adminRoute)) {
+        if (!user) {
+            return NextResponse.redirect(new URL(`/signin`, request.url))
+        }
+        if (!user?.emailVerified) {
+            return NextResponse.redirect(new URL(`/`, request.url))
+        }
+    }
+    return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/admin', '/admin/:path*'],
+    matcher: [
+        // Skip Next.js internals and all static files, unless found in search params
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+        // Always run for API routes
+        '/(api|trpc)(.*)',
+    ],
 }

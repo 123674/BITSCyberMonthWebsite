@@ -28,7 +28,7 @@ const OAuthProviders = {
         tokenUrl: 'https://oauth2.googleapis.com/token',
         errorUrl: '/signin',
         profileUrl: 'https://www.googleapis.com/oauth2/v3/userinfo',
-        defaultCallbackURL: "/home"
+        defaultCallbackURL: "/admin"
     },
 }
 

@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const page = async (): Promise<React.JSX.Element> => {
     const eventsData = await briefAllEventsDataGET();
-    
+    console.log("running admin")
     return <AdminMainPage eventsData={eventsData}  />
 }
 

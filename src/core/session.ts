@@ -3,6 +3,7 @@ import { redisClientforAuth } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import z from "zod";
+import { cache } from "react";
 
 const COOKIE_NAME = "session_id";
 const AUTH_COOKIE_NAME = "auth_session_id";
@@ -53,4 +54,22 @@ export const getOAuthFromSession = async (): Promise<String> => {
 // DELETE request to remove Auth session from the broswer 
 export const removeOAuthFromSession = async (response: NextResponse): Promise<void> => {
   response.cookies.delete(AUTH_COOKIE_NAME);
+}
+
+export const getUserFromSession = cache(async (): Promise<UserDataMiniType | null> => {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get(COOKIE_NAME)?.value;
+  if (sessionId == null) return null;
+  const rawUser = await redisClientforAuth.get(`session:${sessionId}`)
+  const { success, data } = UserDataMiniSchema.safeParse(rawUser);
+  return success ? data : null;
+
+});
+
+export const removeAuthFromSession = async (): Promise<void> => {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get(COOKIE_NAME)?.value;
+  if (sessionId == null) return;
+  await redisClientforAuth.del(`session:${sessionId}`);
+  cookieStore.delete(COOKIE_NAME);
 }
